@@ -27,10 +27,10 @@ unsafe impl MTLRenderPassAttachmentDescriptorTrait for MTLRenderPassColorAttachm
 
         let mut device = super::MTLDevice::default().unwrap();
         let texture_descriptor = super::MTLTextureDescriptor::new(pool);
-        let texture = device.newTextureWithDescriptor(pool,&texture_descriptor).unwrap();
-        deref.setTexture(pool,&texture);
+        let texture = device.newTextureWithDescriptor(&texture_descriptor, pool).unwrap();
+        deref.setTexture(&texture,pool);
         assert!(deref.texture(pool).is_some());
-        deref.setLoadAction(pool, MTLLoadAction::Load);
-        deref.setStoreAction(pool, MTLStoreAction::Store);
+        deref.setLoadAction( MTLLoadAction::Load,pool);
+        deref.setStoreAction( MTLStoreAction::Store,pool);
     })
 }

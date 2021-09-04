@@ -48,9 +48,9 @@ pub unsafe trait MTLRenderPassAttachmentDescriptorTrait: ObjcInstance {}
 #[allow(non_snake_case)]
 pub trait MTLRenderPassAttachmentDescriptorImpl {
     fn texture(&self,pool: &ActiveAutoreleasePool) -> Option<StrongCell<MTLTexture>>;
-    fn setTexture(&mut self, pool: &ActiveAutoreleasePool, texture: &MTLTexture);
-    fn setLoadAction(&mut self, pool: &ActiveAutoreleasePool, action: MTLLoadAction);
-    fn setStoreAction(&mut self, pool: &ActiveAutoreleasePool, action: MTLStoreAction);
+    fn setTexture(&mut self, texture: &MTLTexture,pool: &ActiveAutoreleasePool);
+    fn setLoadAction(&mut self,action: MTLLoadAction,pool: &ActiveAutoreleasePool);
+    fn setStoreAction(&mut self, action: MTLStoreAction,pool: &ActiveAutoreleasePool);
 }
 
 impl<T: MTLRenderPassAttachmentDescriptorTrait> MTLRenderPassAttachmentDescriptorImpl for T {
@@ -60,16 +60,16 @@ impl<T: MTLRenderPassAttachmentDescriptorTrait> MTLRenderPassAttachmentDescripto
             MTLTexture::nullable(ptr).assume_retained()
         }
     }
-    fn setTexture(&mut self, pool: &ActiveAutoreleasePool, texture: &MTLTexture) {
+    fn setTexture(&mut self, texture: &MTLTexture,pool: &ActiveAutoreleasePool) {
         unsafe {
             Self::perform_primitive(self, Sel::setTexture_(), pool, (texture,))
         }
     }
 
-    fn setLoadAction(&mut self, pool: &ActiveAutoreleasePool, action: MTLLoadAction) {
+    fn setLoadAction(&mut self, action: MTLLoadAction,pool: &ActiveAutoreleasePool) {
         unsafe{ Self::perform_primitive(self,Sel::setLoadAction_(), pool, (action.field(),)) }
     }
-    fn setStoreAction(&mut self, pool: &ActiveAutoreleasePool, action: MTLStoreAction) {
+    fn setStoreAction(&mut self, action: MTLStoreAction,pool: &ActiveAutoreleasePool) {
         unsafe{ Self::perform_primitive(self,Sel::setStoreAction_(), pool, (action.field(),)) }
     }
 }

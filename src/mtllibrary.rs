@@ -12,7 +12,7 @@ objc_selector_group! {
 
 #[allow(non_snake_case)]
 impl MTLLibrary {
-    pub fn newFunctionWithName(&mut self, pool: &ActiveAutoreleasePool, name: &NSString) -> Option<StrongCell<MTLFunction>> {
+    pub fn newFunctionWithName(&mut self, name: &NSString, pool: &ActiveAutoreleasePool) -> Option<StrongCell<MTLFunction>> {
         unsafe {
             let ptr = Self::perform(self, Sel::newFunctionWithName_(), pool, (name,));
             MTLFunction::nullable(ptr).assume_retained()

@@ -19,16 +19,16 @@ impl MTLTextureDescriptor {
     pub fn new(pool: &ActiveAutoreleasePool) -> StrongMutCell<MTLTextureDescriptor> {
         unsafe{ Self::class().alloc_init(pool).assume_mut() }
     }
-    pub fn set_width(&mut self, pool: &ActiveAutoreleasePool, width: NSUInteger) {
+    pub fn set_width(&mut self, width: NSUInteger,pool: &ActiveAutoreleasePool) {
         unsafe{
             Self::perform_primitive(self, Sel::setWidth_(), pool, (width,))
         }
     }
-    pub fn set_height(&mut self, pool: &ActiveAutoreleasePool, height: NSUInteger) {
+    pub fn set_height(&mut self, height: NSUInteger,pool: &ActiveAutoreleasePool) {
         unsafe{ Self::perform_primitive(self, Sel::setHeight_(), pool, (height,)) }
     }
 
-    pub fn set_pixel_format(&mut self, pool: &ActiveAutoreleasePool, format: &MTLPixelFormat) {
+    pub fn set_pixel_format(&mut self, format: &MTLPixelFormat,pool: &ActiveAutoreleasePool) {
         unsafe { Self::perform_primitive(self, Sel::setPixelFormat_(), pool, (format.field(),))}
     }
 }
@@ -37,9 +37,9 @@ impl MTLTextureDescriptor {
 fn configure() {
     objr::bindings::autoreleasepool(|pool| {
         let mut descriptor = MTLTextureDescriptor::new(pool);
-        descriptor.set_width(pool,500);
-        descriptor.set_height(pool,1000);
-        descriptor.set_pixel_format(pool,&MTLPixelFormat::R8Unorm);
+        descriptor.set_width(500,pool);
+        descriptor.set_height(1000,pool);
+        descriptor.set_pixel_format(&MTLPixelFormat::R8Unorm,pool);
         let description_strong = descriptor.description(pool);
         let description = description_strong.to_str(pool);
         println!("{}",description );

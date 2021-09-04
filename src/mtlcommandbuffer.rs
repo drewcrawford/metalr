@@ -15,7 +15,7 @@ objc_selector_group! {
 
 #[allow(non_snake_case)]
 impl MTLCommandBuffer {
-    pub fn renderCommandEncoderWithDescriptor(&mut self, pool: &ActiveAutoreleasePool, descriptor: &MTLRenderPassDescriptor) -> Option<StrongMutCell<MTLRenderCommandEncoder>> {
+    pub fn renderCommandEncoderWithDescriptor(&mut self,  descriptor: &MTLRenderPassDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLRenderCommandEncoder>> {
         unsafe {
             let ptr = Self::perform_autorelease_to_retain(self, Sel::renderCommandEncoderWithDescriptor_(), pool, (descriptor,));
             MTLRenderCommandEncoder::nullable(ptr).assume_retained().assume_mut()
@@ -36,7 +36,7 @@ impl MTLCommandBuffer {
         let mut command_q = device.newCommandQueue(pool).unwrap();
         let mut command_buffer = command_q.commandBuffer(pool).unwrap();
         let descriptor = MTLRenderPassDescriptor::new(pool);
-        let mut render_pass = command_buffer.renderCommandEncoderWithDescriptor(pool, &descriptor).unwrap();
+        let mut render_pass = command_buffer.renderCommandEncoderWithDescriptor(&descriptor, pool).unwrap();
         render_pass.endEncoding(pool);
         command_buffer.commit(pool);
     });

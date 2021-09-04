@@ -40,13 +40,13 @@ impl MTLDevice {
             MTLCommandQueue::nullable(ptr).assume_retained().assume_mut()
         }
     }
-    pub fn newTextureWithDescriptor(&mut self, pool: &ActiveAutoreleasePool, descriptor: &super::MTLTextureDescriptor) -> Option<StrongCell<MTLTexture>> {
+    pub fn newTextureWithDescriptor(&mut self,  descriptor: &super::MTLTextureDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongCell<MTLTexture>> {
         unsafe {
             let ptr = Self::perform(self, Sel::newTextureWithDescriptor_(), pool, (descriptor,));
             MTLTexture::nullable(ptr).assume_retained()
         }
     }
-    pub fn newLibraryWithFile<'a>(&mut self, pool: &'a ActiveAutoreleasePool, file: &NSString) -> Result<StrongCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
+    pub fn newLibraryWithFile<'a>(&mut self, file: &NSString, pool: &'a ActiveAutoreleasePool) -> Result<StrongCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
         unsafe {
             let ptr = Self::perform_result(self, Sel::newLibraryWithFile_error(), pool, (file,));
             ptr.map(|d| MTLLibrary::assume_nonnil(d).assume_retained())
@@ -55,14 +55,14 @@ impl MTLDevice {
     }
 
     //todo: Implement options
-    pub fn newLibraryWithSource<'a>(&mut self, pool: &'a ActiveAutoreleasePool, source: &NSString, _options: Option<()>)  -> Result<StrongMutCell<MTLLibrary>, AutoreleasedCell<'a, NSError>>{
+    pub fn newLibraryWithSource<'a>(&mut self, source: &NSString, _options: Option<()>, pool: &'a ActiveAutoreleasePool)  -> Result<StrongMutCell<MTLLibrary>, AutoreleasedCell<'a, NSError>>{
         unsafe {
             let ptr = Self::perform_result(self, Sel::newLibraryWithSource_options_error(), pool, (source, std::ptr::null() as *const c_void));
             ptr.map(|m| MTLLibrary::assume_nonnil(m).assume_retained().assume_mut())
         }
     }
 
-    pub fn newRenderPipelineStateWithDescriptor<'a>(&mut self, pool: &'a ActiveAutoreleasePool, descriptor: &MTLRenderPipelineDescriptor) -> Result<StrongCell<MTLRenderPipelineState>, AutoreleasedCell<'a, NSError>> {
+    pub fn newRenderPipelineStateWithDescriptor<'a>(&mut self, descriptor: &MTLRenderPipelineDescriptor, pool: &'a ActiveAutoreleasePool) -> Result<StrongCell<MTLRenderPipelineState>, AutoreleasedCell<'a, NSError>> {
         unsafe {
             let ptr = Self::perform_result(self, Sel::newRenderPipelineStateWithDescriptor_error(), pool, (descriptor,));
             ptr.map(|m| MTLRenderPipelineState::assume_nonnil(m).assume_retained())
@@ -76,7 +76,7 @@ impl MTLDevice {
     let source = objc_nsstring!("kernel void func() { }");
 
     autoreleasepool(|pool| {
-        let result = device.newLibraryWithSource(pool, &source, None);
+        let result = device.newLibraryWithSource( &source, None, pool);
         result.expect("Expected a library");
     })
 }
@@ -87,14 +87,14 @@ impl MTLDevice {
         let source = objc_nsstring!("
         vertex float4 vtx() { return float4(1,1,1,1); }
         fragment void frag() { }");
-        let mut library = device.newLibraryWithSource(pool, source, None).unwrap();
-        let vertex_fn = library.newFunctionWithName(pool, objc_nsstring!("vtx")).unwrap();
-        let fragment_fn = library.newFunctionWithName(pool, objc_nsstring!("frag")).unwrap();
+        let mut library = device.newLibraryWithSource( source, None, pool).unwrap();
+        let vertex_fn = library.newFunctionWithName( objc_nsstring!("vtx"), pool).unwrap();
+        let fragment_fn = library.newFunctionWithName(objc_nsstring!("frag"), pool).unwrap();
 
         let mut psd = MTLRenderPipelineDescriptor::new(pool);
-        psd.set_vertex_function(pool, &vertex_fn);
-        psd.set_fragment_function(pool, &fragment_fn);
-        let result = device.newRenderPipelineStateWithDescriptor(pool, &psd);
+        psd.set_vertex_function( &vertex_fn,pool);
+        psd.set_fragment_function( &fragment_fn,pool);
+        let result = device.newRenderPipelineStateWithDescriptor( &psd, pool);
         let e = result.unwrap();
         println!("{}",e);
 

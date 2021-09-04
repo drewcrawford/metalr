@@ -19,12 +19,12 @@ impl MTLRenderPipelineDescriptor {
     pub fn new(pool: &ActiveAutoreleasePool) -> StrongMutCell<Self> {
         unsafe{ MTLRenderPipelineDescriptor::class().alloc_init(pool).assume_mut() }
     }
-    pub fn set_vertex_function(&mut self, pool: &ActiveAutoreleasePool, function: &MTLFunction) {
+    pub fn set_vertex_function(&mut self, function: &MTLFunction,pool: &ActiveAutoreleasePool) {
         unsafe {
             Self::perform_primitive(self, Sel::setVertexFunction_(), pool, (function,))
         }
     }
-    pub fn set_fragment_function(&mut self, pool: &ActiveAutoreleasePool, function: &MTLFunction) {
+    pub fn set_fragment_function(&mut self,  function: &MTLFunction,pool: &ActiveAutoreleasePool) {
         unsafe {
             Self::perform_primitive(self, Sel::setFragmentFunction_(), pool, (function,))
         }
@@ -51,19 +51,19 @@ vertex void vtx(void){}
 fragment void frag(void) {}");
 
         let mut device = MTLDevice::default().unwrap();
-        let _library = device.newLibraryWithSource(pool, &source, None);
+        let _library = device.newLibraryWithSource( &source, None, pool);
         if _library.is_err() {
             println!("{}",_library.as_ref().unwrap_err());
         }
         let mut library = _library.unwrap();
         let vertex_name = objc_nsstring!("vtx");
-        let vertex_fn = library.newFunctionWithName(pool,&vertex_name).unwrap();
-        let fragment_fn = library.newFunctionWithName(pool, objc_nsstring!("frag")).unwrap();
+        let vertex_fn = library.newFunctionWithName(&vertex_name, pool).unwrap();
+        let fragment_fn = library.newFunctionWithName( objc_nsstring!("frag"), pool).unwrap();
         let mut descriptor = MTLRenderPipelineDescriptor::new(pool);
-        descriptor.set_vertex_function(pool, &vertex_fn);
+        descriptor.set_vertex_function( &vertex_fn,pool);
         assert!(descriptor.description(pool).to_str(pool).contains("name = vtx"));
 
-        descriptor.set_fragment_function(pool, &fragment_fn);
+        descriptor.set_fragment_function( &fragment_fn,pool);
         assert!(descriptor.description(pool).to_str(pool).contains("name = frag"));
     })
 }

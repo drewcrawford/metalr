@@ -18,10 +18,10 @@ impl MTLRenderPassDescriptor {
     pub fn new(pool: &ActiveAutoreleasePool) -> StrongMutCell<MTLRenderPassDescriptor> {
         unsafe{ Self::class().alloc_init(pool).assume_mut() }
     }
-    pub fn set_renderTargetHeight(&mut self, pool: &ActiveAutoreleasePool, height: NSUInteger) {
+    pub fn set_renderTargetHeight(&mut self,  height: NSUInteger,pool: &ActiveAutoreleasePool) {
         unsafe { Self::perform_primitive(self, Sel::setRenderTargetHeight_(),pool, (height,)) }
     }
-    pub fn set_renderTargetWidth(&mut self, pool: &ActiveAutoreleasePool, width: NSUInteger) {
+    pub fn set_renderTargetWidth(&mut self,  width: NSUInteger,pool: &ActiveAutoreleasePool) {
         unsafe { Self::perform_primitive(self,Sel::setRenderTargetWidth_(), pool, (width,)) }
     }
     pub fn color_attachments<'a>(&self, pool: &ActiveAutoreleasePool) -> StrongCell<MTLRenderPassColorAttachmentDescriptorArray> {
@@ -38,8 +38,8 @@ impl MTLRenderPassDescriptor {
 fn configure_target() {
     autoreleasepool(|pool| {
         let mut descriptor = MTLRenderPassDescriptor::new(pool);
-        descriptor.set_renderTargetHeight(pool,1000);
-        descriptor.set_renderTargetWidth(pool,500);
+        descriptor.set_renderTargetHeight(1000,pool);
+        descriptor.set_renderTargetWidth(500,pool);
         let description_strong = descriptor.description(pool);
         let description = description_strong.to_str(pool);
         assert!(description.contains("renderTargetHeight = 1000"));

@@ -8,7 +8,7 @@ objc_class! {
 }
 #[allow(non_snake_case)]
 impl MTLRenderPipelineColorAttachmentDescriptor {
-    pub fn set_pixelFormat(&mut self, pool: &ActiveAutoreleasePool, pixelFormat: MTLPixelFormat) {
+    pub fn set_pixelFormat(&mut self, pixelFormat: MTLPixelFormat,pool: &ActiveAutoreleasePool) {
         unsafe {
             use crate::mtltexturedescriptor::MTLTextureDescriptorSelectors;
             Self::perform_primitive(self, Sel::setPixelFormat_(), pool, (pixelFormat.field(),))
@@ -19,7 +19,7 @@ impl MTLRenderPipelineColorAttachmentDescriptor {
 #[test] fn smoke_test() {
     autoreleasepool(|pool| {
         let mut d = unsafe{ MTLRenderPipelineColorAttachmentDescriptor::class().alloc_init(pool).assume_mut() };
-        d.set_pixelFormat(pool, MTLPixelFormat::A8Unorm);
+        d.set_pixelFormat( MTLPixelFormat::A8Unorm,pool);
         let description = d.description(pool).to_str(pool).to_owned();
         assert!(description.contains("MTLPixelFormatA8Unorm"));
     })
