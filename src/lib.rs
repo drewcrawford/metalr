@@ -35,3 +35,4 @@ pub use mtlrenderpasscolorattachmentdescriptor::MTLRenderPassColorAttachmentDesc
 pub use mtldevice::MTLDevice;
 pub use mtlrenderpassattachmentdescriptor::{MTLLoadAction,MTLStoreAction,MTLRenderPassAttachmentDescriptorTrait,MTLRenderPassAttachmentDescriptorImpl};
 pub use mtlcommandqueue::MTLCommandQueue;
+pub use mtlcommandbuffer::MTLCommandBuffer;

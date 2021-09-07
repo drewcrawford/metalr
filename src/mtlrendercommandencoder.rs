@@ -50,7 +50,7 @@ impl MTLRenderCommandEncoder {
         psd.set_fragment_function( &fragment_fn,pool);
         let result = device.newRenderPipelineStateWithDescriptor( &psd, pool);
         let pso = result.unwrap();
-        let mut queue = device.newCommandQueue(pool).unwrap();
+        let queue = device.newCommandQueue(pool).unwrap();
         let mut buffer = queue.commandBuffer(pool).unwrap();
         let mut encoder = buffer.renderCommandEncoderWithDescriptor( &pass_descriptor, pool).unwrap();
         encoder.setRenderPipelineState( &pso, pool);

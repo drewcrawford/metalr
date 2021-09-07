@@ -33,7 +33,7 @@ impl MTLCommandBuffer {
     use super::*;
     autoreleasepool(|pool| {
         let mut device = MTLDevice::default().unwrap();
-        let mut command_q = device.newCommandQueue(pool).unwrap();
+        let command_q = device.newCommandQueue(pool).unwrap();
         let mut command_buffer = command_q.commandBuffer(pool).unwrap();
         let descriptor = MTLRenderPassDescriptor::new(pool);
         let mut render_pass = command_buffer.renderCommandEncoderWithDescriptor(&descriptor, pool).unwrap();
