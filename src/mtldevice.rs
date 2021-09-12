@@ -4,6 +4,8 @@ use core::ffi::c_void;
 use crate::mtllibrary::MTLLibrary;
 use crate::{MTLRenderPipelineDescriptor, MTLTexture};
 use crate::MTLRenderPipelineState;
+use std::future::Future;
+use blocksr::continuation::Continuation;
 /*
 In macOS, in order for the system to provide a default Metal device object, you must link to the CoreGraphics framework.
 You usually need to do this explicitly if you are writing apps that don't use graphics by default, such as command line tools.
@@ -23,9 +25,14 @@ objc_selector_group! {
         @selector("newLibraryWithFile:error:")
         @selector("newLibraryWithSource:options:error:")
         @selector("newRenderPipelineStateWithDescriptor:error:")
+        @selector("newRenderPipelineStateWithDescriptor:completionHandler:")
     }
     impl MTLDeviceSelectors for Sel {}
 }
+
+blocksr::once_escaping!(MTLNewRenderPipelineStateCompletionHandler (render_pipeline_state: *mut MTLRenderPipelineState, error: *const NSError) -> ());
+unsafe impl Arguable for &MTLNewRenderPipelineStateCompletionHandler {}
+
 #[allow(non_snake_case)]
 impl MTLDevice {
     pub fn default() -> Option<StrongMutCell<Self>> {
@@ -68,6 +75,32 @@ impl MTLDevice {
             ptr.map(|m| MTLRenderPipelineState::assume_nonnil(m).assume_retained())
         }
     }
+
+    fn newRenderPipelineStateWithDescriptorCompletionHandler<F: FnOnce(Result<&MTLRenderPipelineState, &NSError>) + Send + 'static>(&mut self, descriptor: &MTLRenderPipelineDescriptor, pool: &ActiveAutoreleasePool, handler: F)  {
+        let block = unsafe{ MTLNewRenderPipelineStateCompletionHandler::new(|pso, error| {
+            match pso.as_ref() {
+               None => {
+                   handler(Err(error.as_ref().unwrap()))
+               }
+               Some(pso) => {
+                   handler(Ok(pso))
+               }
+           }
+        })};
+        unsafe {
+            Self::perform_primitive(self, Sel::newRenderPipelineStateWithDescriptor_completionHandler(), pool, (descriptor, &block))
+        }
+    }
+
+    pub fn newRenderPipelineStateWithDescriptorAsync<'s, 'descriptor,'pool>(&'s mut self, descriptor: &'descriptor MTLRenderPipelineDescriptor, pool: &'pool ActiveAutoreleasePool) -> impl Future<Output=Result<StrongCell<MTLRenderPipelineState>, StrongCell<NSError>>> {
+        let (continuation, completion) = Continuation::<(),_>::new();
+        self.newRenderPipelineStateWithDescriptorCompletionHandler(descriptor, pool, |result| {
+            let result = result.map(|r| StrongCell::retaining(r)).map_err(|e| StrongCell::retaining(e));
+            completion.complete(result);
+        });
+        continuation
+    }
+
 
 }
 
