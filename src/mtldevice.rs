@@ -46,10 +46,10 @@ impl MTLDevice {
             MTLTexture::nullable(ptr).assume_retained()
         }
     }
-    pub fn newLibraryWithFile<'a>(&mut self, file: &NSString, pool: &'a ActiveAutoreleasePool) -> Result<StrongCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
+    pub fn newLibraryWithFile<'a>(&mut self, file: &NSString, pool: &'a ActiveAutoreleasePool) -> Result<StrongMutCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
         unsafe {
             let ptr = Self::perform_result(self, Sel::newLibraryWithFile_error(), pool, (file,));
-            ptr.map(|d| MTLLibrary::assume_nonnil(d).assume_retained())
+            ptr.map(|d| MTLLibrary::assume_nonnil(d).assume_retained().assume_mut())
 
         }
     }

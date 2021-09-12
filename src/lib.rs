@@ -17,6 +17,7 @@ mod mtlpixelformat;
 mod mtltexturedescriptor;
 mod mtlrenderpassattachmentdescriptor;
 mod mtlrenderpasscolorattachmentdescriptor;
+mod mtlfunctionconstantvalues;
 
 pub use mtltexture::MTLTexture;
 pub use mtltexturedescriptor::MTLTextureDescriptor;
@@ -36,3 +37,5 @@ pub use mtldevice::MTLDevice;
 pub use mtlrenderpassattachmentdescriptor::{MTLLoadAction,MTLStoreAction,MTLRenderPassAttachmentDescriptorTrait,MTLRenderPassAttachmentDescriptorImpl};
 pub use mtlcommandqueue::MTLCommandQueue;
 pub use mtlcommandbuffer::MTLCommandBuffer;
+pub use mtllibrary::MTLLibrary;
+pub use mtlfunctionconstantvalues::MTLFunctionConstantValues;
