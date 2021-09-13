@@ -18,9 +18,10 @@ mod mtltexturedescriptor;
 mod mtlrenderpassattachmentdescriptor;
 mod mtlrenderpasscolorattachmentdescriptor;
 mod mtlfunctionconstantvalues;
+mod mtlbuffer;
 
 pub use mtltexture::MTLTexture;
-pub use mtltexturedescriptor::MTLTextureDescriptor;
+pub use mtltexturedescriptor::{MTLTextureDescriptor,MTLHazardTrackingMode, MTLStorageMode, MTLCPUCacheMode, MTLResourceOptions};
 pub use mtlrenderpipelinedescriptor::MTLRenderPipelineDescriptor;
 pub use mtlrenderpipelinestate::MTLRenderPipelineState;
 pub use mtlfunction::MTLFunction;
@@ -39,3 +40,4 @@ pub use mtlcommandqueue::MTLCommandQueue;
 pub use mtlcommandbuffer::MTLCommandBuffer;
 pub use mtllibrary::MTLLibrary;
 pub use mtlfunctionconstantvalues::MTLFunctionConstantValues;
+pub use mtlbuffer::MTLBuffer;

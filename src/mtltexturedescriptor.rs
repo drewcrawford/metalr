@@ -12,9 +12,47 @@ objc_selector_group! {
         @selector("setWidth:")
         @selector("setHeight:")
         @selector("setPixelFormat:")
+        @selector("setResourceOptions:")
     }
     impl MTLTextureDescriptorSelectors for Sel {}
 }
+objc_enum! {
+    pub struct MTLCPUCacheMode<NSUInteger>;
+    impl MTLCPUCacheMode {
+        DefaultCache = 0,
+        WriteCombined = 1
+    }
+}
+objc_enum! {
+    pub struct MTLStorageMode<NSUInteger>;
+    impl MTLStorageMode {
+        Shared  = 0,
+        Managed = 1,
+        Private = 2,
+        Memoryless = 3
+    }
+}
+objc_enum! {
+    pub struct MTLHazardTrackingMode<NSUInteger>;
+    impl MTLHazardTrackingMode {
+        Default = 0,
+        Untracked = 1,
+        Tracked = 2
+    }
+}
+#[repr(transparent)]
+#[derive(Debug)]
+pub struct MTLResourceOptions(NSUInteger);
+impl MTLResourceOptions {
+    pub const fn with_options(cache_mode: MTLCPUCacheMode, storage_mode: MTLStorageMode, tracking_mode: MTLHazardTrackingMode) -> Self {
+        let mut options = 0;
+        options = options | cache_mode.field();
+        options = options | (storage_mode.field() << 4);
+        options = options | (tracking_mode.field() << 8);
+        Self(options)
+    }
+}
+unsafe impl Arguable for MTLResourceOptions {}
 impl MTLTextureDescriptor {
     pub fn new(pool: &ActiveAutoreleasePool) -> StrongMutCell<MTLTextureDescriptor> {
         unsafe{ Self::class().alloc_init(pool).assume_mut() }
@@ -30,6 +68,9 @@ impl MTLTextureDescriptor {
 
     pub fn set_pixel_format(&mut self, format: &MTLPixelFormat,pool: &ActiveAutoreleasePool) {
         unsafe { Self::perform_primitive(self, Sel::setPixelFormat_(), pool, (format.field(),))}
+    }
+    pub fn set_resource_options(&mut self, options: MTLResourceOptions, pool: &ActiveAutoreleasePool) {
+        unsafe { Self::perform_primitive(self, Sel::setResourceOptions_(), pool, (options,))}
     }
 }
 

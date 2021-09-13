@@ -2,10 +2,12 @@ use objr::bindings::*;
 use super::mtlcommandqueue::MTLCommandQueue;
 use core::ffi::c_void;
 use crate::mtllibrary::MTLLibrary;
-use crate::{MTLRenderPipelineDescriptor, MTLTexture};
+use crate::{MTLRenderPipelineDescriptor, MTLTexture, MTLResourceOptions};
 use crate::MTLRenderPipelineState;
 use std::future::Future;
 use blocksr::continuation::Continuation;
+use foundationr::NSUInteger;
+use crate::mtlbuffer::MTLBuffer;
 /*
 In macOS, in order for the system to provide a default Metal device object, you must link to the CoreGraphics framework.
 You usually need to do this explicitly if you are writing apps that don't use graphics by default, such as command line tools.
@@ -26,6 +28,7 @@ objc_selector_group! {
         @selector("newLibraryWithSource:options:error:")
         @selector("newRenderPipelineStateWithDescriptor:error:")
         @selector("newRenderPipelineStateWithDescriptor:completionHandler:")
+        @selector("newBufferWithLength:options:")
     }
     impl MTLDeviceSelectors for Sel {}
 }
@@ -47,10 +50,10 @@ impl MTLDevice {
             MTLCommandQueue::nullable(ptr).assume_retained().assume_mut()
         }
     }
-    pub fn newTextureWithDescriptor(&mut self,  descriptor: &super::MTLTextureDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongCell<MTLTexture>> {
+    pub fn newTextureWithDescriptor(&mut self,  descriptor: &super::MTLTextureDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLTexture>> {
         unsafe {
             let ptr = Self::perform(self, Sel::newTextureWithDescriptor_(), pool, (descriptor,));
-            MTLTexture::nullable(ptr).assume_retained()
+            MTLTexture::nullable(ptr).assume_retained().assume_mut()
         }
     }
     pub fn newLibraryWithFile<'a>(&mut self, file: &NSString, pool: &'a ActiveAutoreleasePool) -> Result<StrongMutCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
@@ -99,6 +102,12 @@ impl MTLDevice {
             completion.complete(result);
         });
         continuation
+    }
+    pub fn newBufferWithLengthOptions(&mut self, length: NSUInteger, options: MTLResourceOptions, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLBuffer>> {
+        unsafe {
+            let ptr = Self::perform(self, Sel::newBufferWithLength_options(), pool, (length,options));
+            MTLBuffer::nullable(ptr).assume_retained().assume_mut()
+        }
     }
 
 
