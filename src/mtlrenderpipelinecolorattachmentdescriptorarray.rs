@@ -11,10 +11,10 @@ objc_class! {
 impl MTLRenderPipelineColorAttachmentDescriptorArray {
     ///Unsafe because you might access an array OOB, which causes an objc exception and
     /// therefore UB
-    pub unsafe fn objectAtIndexedSubscript(&self,subscript: NSUInteger,pool: &ActiveAutoreleasePool) -> StrongCell<MTLRenderPipelineColorAttachmentDescriptor> {
+    pub unsafe fn objectAtIndexedSubscript(&self,subscript: NSUInteger,pool: &ActiveAutoreleasePool) -> StrongMutCell<MTLRenderPipelineColorAttachmentDescriptor> {
         use crate::mtlrenderpasscolorattachmentdescriptorarray::MTLRenderPassColorAttachmentDescriptorArraySelectors;
         let ptr = Self::perform_autorelease_to_retain(self.assume_nonmut_perform(), Sel::objectAtIndexedSubscript_(), pool, (subscript,));
-        MTLRenderPipelineColorAttachmentDescriptor::assume_nonnil(ptr).assume_retained()
+        MTLRenderPipelineColorAttachmentDescriptor::assume_nonnil(ptr).assume_retained().assume_mut()
     }
 }
 
