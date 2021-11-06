@@ -1,5 +1,6 @@
 use objr::bindings::*;
 use super::{MTLRenderPassDescriptor,MTLRenderCommandEncoder,MTLDrawable};
+use crate::mtlblitcommandencoder::MTLBlitCommandEncoder;
 objc_instance!(
     pub struct MTLCommandBuffer;
 );
@@ -9,6 +10,7 @@ objc_selector_group! {
         @selector("renderCommandEncoderWithDescriptor:")
         @selector("commit")
         @selector("presentDrawable:")
+        @selector("blitCommandEncoder")
     }
     impl MTLCommandBufferSelectors for Sel {}
 }
@@ -27,6 +29,12 @@ impl MTLCommandBuffer {
     pub fn presentDrawable(&mut self, pool: &ActiveAutoreleasePool, drawable: &MTLDrawable) {
         unsafe{ Self::perform_primitive(self,Sel::presentDrawable_(), pool, (drawable,)) }
     }
+    pub fn blitCommandEncoder(&mut self, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLBlitCommandEncoder>> {
+        unsafe {
+            let ptr = Self::perform_autorelease_to_retain(self, Sel::blitCommandEncoder(), pool, ());
+            MTLBlitCommandEncoder::nullable(ptr).assume_retained().assume_mut()
+        }
+    }
 }
 
 #[test] fn smoke_test() {
@@ -35,7 +43,9 @@ impl MTLCommandBuffer {
         let mut device = MTLDevice::default().unwrap();
         let command_q = device.newCommandQueue(pool).unwrap();
         let mut command_buffer = command_q.commandBuffer(pool).unwrap();
-        let descriptor = MTLRenderPassDescriptor::new(pool);
+        let mut descriptor = MTLRenderPassDescriptor::new(pool);
+        descriptor.set_renderTargetHeight(100, pool);
+        descriptor.set_renderTargetWidth(100, pool);
         let mut render_pass = command_buffer.renderCommandEncoderWithDescriptor(&descriptor, pool).unwrap();
         render_pass.endEncoding(pool);
         command_buffer.commit(pool);

@@ -1,5 +1,5 @@
 use objr::bindings::*;
-use crate::{MTLRenderPipelineState,MTLPrimitiveType};
+use crate::{MTLRenderPipelineState, MTLPrimitiveType, MTLTexture};
 use foundationr::NSUInteger;
 
 objc_instance! {
@@ -10,6 +10,7 @@ objc_selector_group! {
         @selector("setRenderPipelineState:")
         @selector("drawPrimitives:vertexStart:vertexCount:")
         @selector("endEncoding")
+        @selector("setFragmentTexture:atIndex:")
     }
     impl MTLRenderCommandEncoderSelectors for Sel {}
 }
@@ -18,6 +19,11 @@ impl MTLRenderCommandEncoder {
     pub fn setRenderPipelineState(&mut self, pipelineState: &MTLRenderPipelineState, pool: &ActiveAutoreleasePool) {
         unsafe {
             Self::perform_primitive(self, Sel::setRenderPipelineState_(), pool, (pipelineState,))
+        }
+    }
+    pub fn setFragmentTextureAtIndex(&mut self, texture: &MTLTexture, index: NSUInteger, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            Self::perform_primitive(self, Sel::setFragmentTexture_atIndex(), pool, (texture,index))
         }
     }
     pub fn drawPrimitivesVertexStartVertexCount(&mut self, primitive: MTLPrimitiveType, vertexStart: NSUInteger, vertexCount: NSUInteger,pool: &ActiveAutoreleasePool) {
@@ -43,8 +49,10 @@ impl MTLRenderCommandEncoder {
         let vertex_fn = library.newFunctionWithName( objc_nsstring!("vtx"), pool).unwrap();
         let fragment_fn = library.newFunctionWithName( objc_nsstring!("frag"), pool).unwrap();
 
-        let pass_descriptor = MTLRenderPassDescriptor::new(pool);
-
+        let mut pass_descriptor = MTLRenderPassDescriptor::new(pool);
+        //on apple silicon, we need a real size
+        pass_descriptor.set_renderTargetHeight(100, pool);
+        pass_descriptor.set_renderTargetWidth(100, pool);
         let mut psd = MTLRenderPipelineDescriptor::new(pool);
         psd.set_vertex_function( &vertex_fn,pool);
         psd.set_fragment_function( &fragment_fn,pool);
