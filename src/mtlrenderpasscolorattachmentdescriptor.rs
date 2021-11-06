@@ -25,7 +25,7 @@ unsafe impl MTLRenderPassAttachmentDescriptorTrait for MTLRenderPassColorAttachm
 
         assert!(deref.texture(pool).is_none());
 
-        let mut device = super::MTLDevice::default().unwrap();
+        let device = super::MTLDevice::default().unwrap();
         let texture_descriptor = super::MTLTextureDescriptor::new(pool);
         let texture = device.newTextureWithDescriptor(&texture_descriptor, pool).unwrap();
         deref.setTexture(&texture,pool);

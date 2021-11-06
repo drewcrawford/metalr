@@ -50,7 +50,7 @@ impl MTLRenderPipelineDescriptor {
 vertex void vtx(void){}
 fragment void frag(void) {}");
 
-        let mut device = MTLDevice::default().unwrap();
+        let device = MTLDevice::default().unwrap();
         let _library = device.newLibraryWithSource( &source, None, pool);
         if _library.is_err() {
             println!("{}",_library.as_ref().unwrap_err());

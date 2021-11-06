@@ -36,6 +36,15 @@ objc_selector_group! {
 blocksr::once_escaping!(MTLNewRenderPipelineStateCompletionHandler (render_pipeline_state: *mut MTLRenderPipelineState, error: *const NSError) -> ());
 unsafe impl Arguable for &MTLNewRenderPipelineStateCompletionHandler {}
 
+/*
+A note on threadsafety (e.g., mutability) in here.
+
+MTLDevice is both allegedly threadsafe (see gfx engineer comment here: https://developer.apple.com/forums/thread/93346)
+and known not to be (see rust-gfs https://github.com/gfx-rs/gfx/issues/1976 and https://github.com/gfx-rs/gfx/issues/1984).
+
+rust-gfx solves this with runtime locks.  I'm not sure if this is needed or not.  For right now, let's just use assume_nonmut on
+functions in this file.
+ */
 #[allow(non_snake_case)]
 impl MTLDevice {
     pub fn default() -> Option<StrongMutCell<Self>> {
@@ -44,42 +53,47 @@ impl MTLDevice {
             Self::nullable(raw_ptr).assume_retained().assume_mut()
         }
     }
-    pub fn newCommandQueue(&mut self, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLCommandQueue>> {
+    pub fn newCommandQueue(&self, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLCommandQueue>> {
         unsafe {
-            let ptr = Self::perform(self, Sel::newCommandQueue(), pool, ());
+            //assume_nonmut_perform: see comment above
+            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newCommandQueue(), pool, ());
             MTLCommandQueue::nullable(ptr).assume_retained().assume_mut()
         }
     }
-    pub fn newTextureWithDescriptor(&mut self,  descriptor: &super::MTLTextureDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLTexture>> {
+    pub fn newTextureWithDescriptor(&self,  descriptor: &super::MTLTextureDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLTexture>> {
         unsafe {
-            let ptr = Self::perform(self, Sel::newTextureWithDescriptor_(), pool, (descriptor,));
+            //assume_nonmut_perform: see comment above
+            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newTextureWithDescriptor_(), pool, (descriptor,));
             MTLTexture::nullable(ptr).assume_retained().assume_mut()
         }
     }
-    pub fn newLibraryWithFile<'a>(&mut self, file: &NSString, pool: &'a ActiveAutoreleasePool) -> Result<StrongMutCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
+    pub fn newLibraryWithFile<'a>(&self, file: &NSString, pool: &'a ActiveAutoreleasePool) -> Result<StrongMutCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
         unsafe {
-            let ptr = Self::perform_result(self, Sel::newLibraryWithFile_error(), pool, (file,));
+            //assume_nonmut_perform: see comment above
+            let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newLibraryWithFile_error(), pool, (file,));
             ptr.map(|d| MTLLibrary::assume_nonnil(d).assume_retained().assume_mut())
 
         }
     }
 
     //todo: Implement options
-    pub fn newLibraryWithSource<'a>(&mut self, source: &NSString, _options: Option<()>, pool: &'a ActiveAutoreleasePool)  -> Result<StrongMutCell<MTLLibrary>, AutoreleasedCell<'a, NSError>>{
+    pub fn newLibraryWithSource<'a>(&self, source: &NSString, _options: Option<()>, pool: &'a ActiveAutoreleasePool)  -> Result<StrongMutCell<MTLLibrary>, AutoreleasedCell<'a, NSError>>{
         unsafe {
-            let ptr = Self::perform_result(self, Sel::newLibraryWithSource_options_error(), pool, (source, std::ptr::null() as *const c_void));
+            //assume_nonmut_perform: see comment above
+            let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newLibraryWithSource_options_error(), pool, (source, std::ptr::null() as *const c_void));
             ptr.map(|m| MTLLibrary::assume_nonnil(m).assume_retained().assume_mut())
         }
     }
 
-    pub fn newRenderPipelineStateWithDescriptor<'a>(&mut self, descriptor: &MTLRenderPipelineDescriptor, pool: &'a ActiveAutoreleasePool) -> Result<StrongCell<MTLRenderPipelineState>, AutoreleasedCell<'a, NSError>> {
+    pub fn newRenderPipelineStateWithDescriptor<'a>(&self, descriptor: &MTLRenderPipelineDescriptor, pool: &'a ActiveAutoreleasePool) -> Result<StrongCell<MTLRenderPipelineState>, AutoreleasedCell<'a, NSError>> {
         unsafe {
-            let ptr = Self::perform_result(self, Sel::newRenderPipelineStateWithDescriptor_error(), pool, (descriptor,));
+            //assume_nonmut_perform: see comment above
+            let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newRenderPipelineStateWithDescriptor_error(), pool, (descriptor,));
             ptr.map(|m| MTLRenderPipelineState::assume_nonnil(m).assume_retained())
         }
     }
 
-    fn newRenderPipelineStateWithDescriptorCompletionHandler<F: FnOnce(Result<&MTLRenderPipelineState, &NSError>) + Send + 'static>(&mut self, descriptor: &MTLRenderPipelineDescriptor, pool: &ActiveAutoreleasePool, handler: F)  {
+    fn newRenderPipelineStateWithDescriptorCompletionHandler<F: FnOnce(Result<&MTLRenderPipelineState, &NSError>) + Send + 'static>(&self, descriptor: &MTLRenderPipelineDescriptor, pool: &ActiveAutoreleasePool, handler: F)  {
         let block = unsafe{ MTLNewRenderPipelineStateCompletionHandler::new(|pso, error| {
             match pso.as_ref() {
                None => {
@@ -91,11 +105,12 @@ impl MTLDevice {
            }
         })};
         unsafe {
-            Self::perform_primitive(self, Sel::newRenderPipelineStateWithDescriptor_completionHandler(), pool, (descriptor, &block))
+            //assume_nonmut_perform: see comment above
+            Self::perform_primitive(self.assume_nonmut_perform(), Sel::newRenderPipelineStateWithDescriptor_completionHandler(), pool, (descriptor, &block))
         }
     }
 
-    pub fn newRenderPipelineStateWithDescriptorAsync<'s, 'descriptor,'pool>(&'s mut self, descriptor: &'descriptor MTLRenderPipelineDescriptor, pool: &'pool ActiveAutoreleasePool) -> impl Future<Output=Result<StrongCell<MTLRenderPipelineState>, StrongCell<NSError>>> {
+    pub fn newRenderPipelineStateWithDescriptorAsync<'s, 'descriptor,'pool>(&'s self, descriptor: &'descriptor MTLRenderPipelineDescriptor, pool: &'pool ActiveAutoreleasePool) -> impl Future<Output=Result<StrongCell<MTLRenderPipelineState>, StrongCell<NSError>>> {
         let (continuation, completion) = Continuation::<(),_>::new();
         self.newRenderPipelineStateWithDescriptorCompletionHandler(descriptor, pool, |result| {
             let result = result.map(|r| StrongCell::retaining(r)).map_err(|e| StrongCell::retaining(e));
@@ -103,9 +118,10 @@ impl MTLDevice {
         });
         continuation
     }
-    pub fn newBufferWithLengthOptions(&mut self, length: NSUInteger, options: MTLResourceOptions, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLBuffer>> {
+    pub fn newBufferWithLengthOptions(&self, length: NSUInteger, options: MTLResourceOptions, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLBuffer>> {
         unsafe {
-            let ptr = Self::perform(self, Sel::newBufferWithLength_options(), pool, (length,options));
+            //assume_nonmut_perform: see comment above
+            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newBufferWithLength_options(), pool, (length,options));
             MTLBuffer::nullable(ptr).assume_retained().assume_mut()
         }
     }
@@ -114,7 +130,7 @@ impl MTLDevice {
 }
 
 #[test] fn test_source() {
-    let mut device = MTLDevice::default().unwrap();
+    let device = MTLDevice::default().unwrap();
     let source = objc_nsstring!("kernel void func() { }");
 
     autoreleasepool(|pool| {
@@ -124,7 +140,7 @@ impl MTLDevice {
 }
 
 #[test] fn pso() {
-    let mut device = MTLDevice::default().unwrap();
+    let device = MTLDevice::default().unwrap();
     autoreleasepool(|pool| {
         let source = objc_nsstring!("
         vertex float4 vtx() { return float4(1,1,1,1); }
@@ -136,6 +152,7 @@ impl MTLDevice {
         let mut psd = MTLRenderPipelineDescriptor::new(pool);
         psd.set_vertex_function( &vertex_fn,pool);
         psd.set_fragment_function( &fragment_fn,pool);
+        unsafe{psd.colorAttachments(pool).objectAtIndexedSubscript(0, pool)}.set_pixelFormat(crate::MTLPixelFormat::BGRA8Unorm,pool);
         let result = device.newRenderPipelineStateWithDescriptor( &psd, pool);
         let e = result.unwrap();
         println!("{}",e);

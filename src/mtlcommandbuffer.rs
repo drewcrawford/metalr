@@ -40,7 +40,7 @@ impl MTLCommandBuffer {
 #[test] fn smoke_test() {
     use super::*;
     autoreleasepool(|pool| {
-        let mut device = MTLDevice::default().unwrap();
+        let device = MTLDevice::default().unwrap();
         let command_q = device.newCommandQueue(pool).unwrap();
         let mut command_buffer = command_q.commandBuffer(pool).unwrap();
         let mut descriptor = MTLRenderPassDescriptor::new(pool);

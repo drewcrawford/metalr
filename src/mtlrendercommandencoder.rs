@@ -40,7 +40,7 @@ impl MTLRenderCommandEncoder {
 
 #[test] fn smoke_test() {
     use super::*;
-    let mut device = MTLDevice::default().unwrap();
+    let device = MTLDevice::default().unwrap();
     autoreleasepool(|pool| {
         let source = objc_nsstring!("
         vertex float4 vtx() { return float4(1,1,1,1); }
@@ -56,6 +56,7 @@ impl MTLRenderCommandEncoder {
         let mut psd = MTLRenderPipelineDescriptor::new(pool);
         psd.set_vertex_function( &vertex_fn,pool);
         psd.set_fragment_function( &fragment_fn,pool);
+        unsafe{psd.colorAttachments(pool).objectAtIndexedSubscript(0, pool)}.set_pixelFormat(crate::MTLPixelFormat::BGRA8Unorm,pool);
         let result = device.newRenderPipelineStateWithDescriptor( &psd, pool);
         let pso = result.unwrap();
         let queue = device.newCommandQueue(pool).unwrap();
