@@ -137,6 +137,14 @@ impl MTLDevice {
 
 }
 
+#[test] fn test_descriptor() {
+    let device = MTLDevice::default().unwrap();
+    autoreleasepool(|pool| {
+        let descriptor = MTLSamplerDescriptor::new(pool);
+        device.newSamplerStateWithDescriptor(&descriptor,pool).unwrap()
+    });
+}
+
 #[test] fn test_source() {
     let device = MTLDevice::default().unwrap();
     let source = objc_nsstring!("kernel void func() { }");

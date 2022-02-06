@@ -7,5 +7,5 @@ edition = "2018"
 
 [dependencies]
 objr = {git = "https://github.com/drewcrawford/objr"}
-foundationr = {git = "https://github.com/drewcrawford/foundationr"}
+foundationr = {git = "https://github.com/drewcrawford/foundationr",features=["nsrange"]}
 blocksr = {git = "https://github.com/drewcrawford/blocksr",features=["continuation"]}
