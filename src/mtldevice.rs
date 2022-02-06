@@ -29,6 +29,7 @@ objc_selector_group! {
         @selector("newRenderPipelineStateWithDescriptor:error:")
         @selector("newRenderPipelineStateWithDescriptor:completionHandler:")
         @selector("newBufferWithLength:options:")
+        @selector("newSamplerStateWithDescriptor:")
     }
     impl MTLDeviceSelectors for Sel {}
 }
@@ -123,6 +124,13 @@ impl MTLDevice {
             //assume_nonmut_perform: see comment above
             let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newBufferWithLength_options(), pool, (length,options));
             MTLBuffer::nullable(ptr).assume_retained().assume_mut()
+        }
+    }
+    pub fn newSamplerStateWithDescriptor(&self, descriptor: &MTLSamplerDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLSamplerState>> {
+        unsafe {
+            //assume_nonmut_perform: see comment above
+            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newSamplerStateWithDescriptor_(), pool, (descriptor,));
+            MTLSamplerState::nullable(ptr).assume_retained().assume_mut()
         }
     }
 

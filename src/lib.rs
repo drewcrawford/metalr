@@ -98,6 +98,7 @@ mod mtlfunctionconstantvalues;
 mod mtlbuffer;
 mod mtlblitcommandencoder;
 mod mtltypes;
+mod mtlsampler;
 
 pub use mtltexture::MTLTexture;
 pub use mtltexturedescriptor::{MTLTextureDescriptor,MTLHazardTrackingMode, MTLStorageMode, MTLCPUCacheMode, MTLResourceOptions,MTLTextureUsage};
