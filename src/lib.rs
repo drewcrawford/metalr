@@ -100,7 +100,7 @@ mod mtlblitcommandencoder;
 mod mtltypes;
 
 pub use mtltexture::MTLTexture;
-pub use mtltexturedescriptor::{MTLTextureDescriptor,MTLHazardTrackingMode, MTLStorageMode, MTLCPUCacheMode, MTLResourceOptions};
+pub use mtltexturedescriptor::{MTLTextureDescriptor,MTLHazardTrackingMode, MTLStorageMode, MTLCPUCacheMode, MTLResourceOptions,MTLTextureUsage};
 pub use mtlrenderpipelinedescriptor::MTLRenderPipelineDescriptor;
 pub use mtlrenderpipelinestate::MTLRenderPipelineState;
 pub use mtlfunction::MTLFunction;

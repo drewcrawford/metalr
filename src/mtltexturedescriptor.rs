@@ -13,6 +13,7 @@ objc_selector_group! {
         @selector("setHeight:")
         @selector("setPixelFormat:")
         @selector("setResourceOptions:")
+        @selector("setUsage:")
     }
     impl MTLTextureDescriptorSelectors for Sel {}
 }
@@ -32,6 +33,7 @@ objc_enum! {
         Memoryless = 3
     }
 }
+
 objc_enum! {
     pub struct MTLHazardTrackingMode<NSUInteger>;
     impl MTLHazardTrackingMode {
@@ -40,8 +42,18 @@ objc_enum! {
         Tracked = 2
     }
 }
+objc_enum! {
+    pub struct MTLTextureUsage<NSUInteger>;
+    impl MTLTextureUsage {
+        Unknown = 0,
+        ShaderRead      = 0x0001,
+        ShaderWrite     = 0x0002,
+        RenderTarget    = 0x0004,
+        PixelFormatView = 0x0010
+    }
+}
 #[repr(transparent)]
-#[derive(Debug)]
+#[derive(Debug,Copy,Clone)]
 pub struct MTLResourceOptions(NSUInteger);
 impl MTLResourceOptions {
     pub const fn with_options(cache_mode: MTLCPUCacheMode, storage_mode: MTLStorageMode, tracking_mode: MTLHazardTrackingMode) -> Self {
@@ -72,6 +84,9 @@ impl MTLTextureDescriptor {
     pub fn set_resource_options(&mut self, options: MTLResourceOptions, pool: &ActiveAutoreleasePool) {
         unsafe { Self::perform_primitive(self, Sel::setResourceOptions_(), pool, (options,))}
     }
+    pub fn set_usage(&mut self, usage: &MTLTextureUsage, pool: &ActiveAutoreleasePool) {
+        unsafe { Self::perform_primitive(self, Sel::setUsage_(),pool,(usage.field(),)) }
+    }
 }
 
 #[test]
@@ -81,12 +96,14 @@ fn configure() {
         descriptor.set_width(500,pool);
         descriptor.set_height(1000,pool);
         descriptor.set_pixel_format(&MTLPixelFormat::R8Unorm,pool);
+        descriptor.set_usage(&MTLTextureUsage::ShaderRead,pool);
         let description_strong = descriptor.description(pool);
         let description = description_strong.to_str(pool);
         println!("{}",description );
         assert!(description.contains("width = 500"));
         assert!(description.contains("height = 1000"));
         assert!(description.contains("pixelFormat = MTLPixelFormatR8Unorm"));
+        assert!(description.contains("usage = MTLTextureUsageShaderRead"));
     });
 
 }
