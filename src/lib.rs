@@ -121,5 +121,6 @@ pub use mtlcommandbuffer::MTLCommandBuffer;
 pub use mtllibrary::MTLLibrary;
 pub use mtlfunctionconstantvalues::MTLFunctionConstantValues;
 pub use mtlbuffer::MTLBuffer;
-pub use mtltypes::{MTLOrigin, MTLSize};
+pub use mtltypes::{MTLOrigin, MTLSize,MTLRegion};
 pub use mtlblitcommandencoder::MTLBlitCommandEncoder;
+pub use mtlsampler::{MTLSamplerDescriptor,MTLSamplerState};

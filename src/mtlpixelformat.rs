@@ -3,6 +3,7 @@ use objr::bindings::*;
 use foundationr::NSUInteger;
 
 objc_enum! {
+    #[derive(PartialEq,Eq)]
     pub struct MTLPixelFormat<NSUInteger>;
     impl MTLPixelFormat {
 Invalid = 0,

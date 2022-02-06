@@ -13,6 +13,8 @@ impl MTLOrigin {
     pub const ZERO: MTLOrigin = MTLOrigin { x: 0, y: 0, z: 0};
 }
 
+
+
 #[repr(C)]
 #[derive(Debug)]
 pub struct MTLSize {
@@ -21,3 +23,11 @@ pub struct MTLSize {
     pub depth: NSUInteger
 }
 unsafe impl Arguable for MTLSize {}
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct MTLRegion {
+    pub origin: MTLOrigin,
+    pub size: MTLSize,
+}
+unsafe impl Arguable for MTLRegion {}
