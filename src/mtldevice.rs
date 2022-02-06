@@ -2,8 +2,7 @@ use objr::bindings::*;
 use super::mtlcommandqueue::MTLCommandQueue;
 use core::ffi::c_void;
 use crate::mtllibrary::MTLLibrary;
-use crate::{MTLRenderPipelineDescriptor, MTLTexture, MTLResourceOptions};
-use crate::MTLRenderPipelineState;
+use crate::{MTLRenderPipelineDescriptor, MTLTexture, MTLResourceOptions, MTLPixelFormat, MTLRenderPipelineState, MTLSamplerDescriptor,MTLSamplerState};
 use std::future::Future;
 use blocksr::continuation::Continuation;
 use foundationr::NSUInteger;
@@ -29,6 +28,7 @@ objc_selector_group! {
         @selector("newRenderPipelineStateWithDescriptor:error:")
         @selector("newRenderPipelineStateWithDescriptor:completionHandler:")
         @selector("newBufferWithLength:options:")
+        @selector("minimumLinearTextureAlignmentForPixelFormat:")
         @selector("newSamplerStateWithDescriptor:")
     }
     impl MTLDeviceSelectors for Sel {}
@@ -126,6 +126,12 @@ impl MTLDevice {
             MTLBuffer::nullable(ptr).assume_retained().assume_mut()
         }
     }
+    pub fn minimumLinearTextureAlignmentForPixelFormat(&self, format: MTLPixelFormat, pool: &ActiveAutoreleasePool) -> NSUInteger {
+        unsafe {
+            //assume_nonmut_perform: see comment above
+            Self::perform_primitive(self.assume_nonmut_perform(), Sel::minimumLinearTextureAlignmentForPixelFormat_(), pool,  (format.field(),))
+        }
+    }
     pub fn newSamplerStateWithDescriptor(&self, descriptor: &MTLSamplerDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLSamplerState>> {
         unsafe {
             //assume_nonmut_perform: see comment above
@@ -134,6 +140,15 @@ impl MTLDevice {
         }
     }
 
+
+}
+
+#[test] fn test_alignment() {
+    let device = MTLDevice::default().unwrap();
+    autoreleasepool(|pool| {
+        let alignment = device.minimumLinearTextureAlignmentForPixelFormat(MTLPixelFormat::R8Unorm, pool);
+        println!("alignment,{:?}",alignment);
+    });
 
 }
 
