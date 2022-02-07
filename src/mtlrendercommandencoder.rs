@@ -1,5 +1,5 @@
 use objr::bindings::*;
-use crate::{MTLRenderPipelineState, MTLPrimitiveType, MTLTexture};
+use crate::{MTLRenderPipelineState, MTLPrimitiveType, MTLTexture,MTLSamplerState};
 use foundationr::NSUInteger;
 
 objc_instance! {
@@ -11,6 +11,7 @@ objc_selector_group! {
         @selector("drawPrimitives:vertexStart:vertexCount:")
         @selector("endEncoding")
         @selector("setFragmentTexture:atIndex:")
+        @selector("setFragmentSamplerState:atIndex:")
     }
     impl MTLRenderCommandEncoderSelectors for Sel {}
 }
@@ -26,6 +27,12 @@ impl MTLRenderCommandEncoder {
             Self::perform_primitive(self, Sel::setFragmentTexture_atIndex(), pool, (texture,index))
         }
     }
+    pub fn setFragmentSamplerStateAtIndex(&mut self, sampler: &MTLSamplerState, index: NSUInteger, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            Self::perform_primitive(self,Sel::setFragmentSamplerState_atIndex(), pool, (sampler,index))
+        }
+    }
+
     pub fn drawPrimitivesVertexStartVertexCount(&mut self, primitive: MTLPrimitiveType, vertexStart: NSUInteger, vertexCount: NSUInteger,pool: &ActiveAutoreleasePool) {
         unsafe {
             Self::perform_primitive(self, Sel::drawPrimitives_vertexStart_vertexCount(), pool, (primitive.field(), vertexStart, vertexCount))
