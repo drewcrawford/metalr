@@ -113,11 +113,15 @@ impl MTLDevice {
 
     pub fn newRenderPipelineStateWithDescriptorAsync<'s, 'descriptor,'pool>(&'s self, descriptor: &'descriptor MTLRenderPipelineDescriptor, pool: &'pool ActiveAutoreleasePool) -> impl Future<Output=Result<StrongCell<MTLRenderPipelineState>, StrongCell<NSError>>> {
         let (continuation, completion) = Continuation::<(),_>::new();
-        self.newRenderPipelineStateWithDescriptorCompletionHandler(descriptor, pool, |result| {
+        //I'm not sure if renderpipelinestate is generally threadsafe, but this usage is public API so it should be fine.
+        self.newRenderPipelineStateWithDescriptorCompletionHandler(descriptor, pool, move |result| {
             let result = result.map(|r| StrongCell::retaining(r)).map_err(|e| StrongCell::retaining(e));
+            let result = unsafe{ImpliedSyncUse::new(result)};
             completion.complete(result);
         });
-        continuation
+        async {
+            unsafe{continuation.await.unwrap()} //end implied sync use
+        }
     }
     pub fn newBufferWithLengthOptions(&self, length: NSUInteger, options: MTLResourceOptions, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLBuffer>> {
         unsafe {

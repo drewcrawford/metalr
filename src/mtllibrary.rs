@@ -43,12 +43,16 @@ impl MTLLibrary {
     }
 
     pub fn newFunctionAsync(&self, name: &NSString, constantValues: &MTLFunctionConstantValues, pool: &ActiveAutoreleasePool) -> impl Future<Output=Result<StrongCell<MTLFunction>,StrongCell<NSError>>> {
-        let (continuation, completer) = blocksr::continuation::Continuation::<(),Result<StrongCell<MTLFunction>,StrongCell<NSError>>>::new();
+        let (continuation, completer) = blocksr::continuation::Continuation::<(),ImpliedSyncUse<Result<StrongCell<MTLFunction>,StrongCell<NSError>>>>::new();
         self.newFunctionWithNameConstantValuesCompletionHandler(name, constantValues, |result| {
             let result = result.map(|r| StrongCell::retaining(r)).map_err(|e| StrongCell::retaining(e));
-            completer.complete(result);
+            //safe because API inference
+            completer.complete(unsafe{ImpliedSyncUse::new(result)});
         }, pool);
-        continuation
+        async {
+            //safe because API inference, and we did nothing between then and now
+            unsafe{continuation.await.unwrap()}
+        }
     }
 }
 
