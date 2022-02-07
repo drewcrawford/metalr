@@ -18,3 +18,5 @@ impl MTLSamplerDescriptor {
 objc_instance! {
     pub struct MTLSamplerState;
 }
+//I mean, it can be sent to the GPU, so.
+unsafe impl Send for MTLSamplerState {}

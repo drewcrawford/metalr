@@ -5,6 +5,9 @@ use crate::mtltypes::MTLRegion;
 objc_instance! {
     pub struct MTLTexture;
 }
+//It can be sent to the GPU, so.
+unsafe impl Send for MTLTexture {}
+unsafe impl Sync for MTLTexture {}
 
 objc_selector_group! {
     trait MTLTextureSelectors {
