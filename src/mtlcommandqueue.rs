@@ -12,6 +12,7 @@ objc_selector_group! {
 }
 //allegedly
 unsafe impl Sync for MTLCommandQueue {}
+unsafe impl Send for MTLCommandQueue {}
 impl MTLCommandQueue {
     #[allow(non_snake_case)]
     //marking this nonmut because the class is documented to be threadsafe
