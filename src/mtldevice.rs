@@ -86,17 +86,17 @@ impl MTLDevice {
         }
     }
 
-    pub fn newRenderPipelineStateWithDescriptor<'a>(&self, descriptor: &MTLRenderPipelineDescriptor, pool: &'a ActiveAutoreleasePool) -> Result<StrongCell<MTLRenderPipelineState>, AutoreleasedCell<'a, NSError>> {
+    pub fn newRenderPipelineStateWithDescriptor<'a>(&self, descriptor: &MTLRenderPipelineDescriptor, pool: &'a ActiveAutoreleasePool) -> Result<StrongMutCell<MTLRenderPipelineState>, AutoreleasedCell<'a, NSError>> {
         unsafe {
             //assume_nonmut_perform: see comment above
             let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newRenderPipelineStateWithDescriptor_error(), pool, (descriptor,));
-            ptr.map(|m| MTLRenderPipelineState::assume_nonnil(m).assume_retained())
+            ptr.map(|m| MTLRenderPipelineState::assume_nonnil(m).assume_retained().assume_mut())
         }
     }
 
-    fn newRenderPipelineStateWithDescriptorCompletionHandler<F: FnOnce(Result<&MTLRenderPipelineState, &NSError>) + Send + 'static>(&self, descriptor: &MTLRenderPipelineDescriptor, pool: &ActiveAutoreleasePool, handler: F)  {
+    fn newRenderPipelineStateWithDescriptorCompletionHandler<F: FnOnce(Result<&mut MTLRenderPipelineState, &NSError>) + Send + 'static>(&self, descriptor: &MTLRenderPipelineDescriptor, pool: &ActiveAutoreleasePool, handler: F)  {
         let block = unsafe{ MTLNewRenderPipelineStateCompletionHandler::new(|pso, error| {
-            match pso.as_ref() {
+            match pso.as_mut() {
                None => {
                    handler(Err(error.as_ref().unwrap()))
                }
@@ -111,11 +111,11 @@ impl MTLDevice {
         }
     }
 
-    pub fn newRenderPipelineStateWithDescriptorAsync<'s, 'descriptor,'pool>(&'s self, descriptor: &'descriptor MTLRenderPipelineDescriptor, pool: &'pool ActiveAutoreleasePool) -> impl Future<Output=Result<StrongCell<MTLRenderPipelineState>, StrongCell<NSError>>> {
+    pub fn newRenderPipelineStateWithDescriptorAsync<'s, 'descriptor,'pool>(&'s self, descriptor: &'descriptor MTLRenderPipelineDescriptor, pool: &'pool ActiveAutoreleasePool) -> impl Future<Output=Result<StrongMutCell<MTLRenderPipelineState>, StrongCell<NSError>>> {
         let (continuation, completion) = Continuation::<(),_>::new();
         //I'm not sure if renderpipelinestate is generally threadsafe, but this usage is public API so it should be fine.
         self.newRenderPipelineStateWithDescriptorCompletionHandler(descriptor, pool, move |result| {
-            let result = result.map(|r| StrongCell::retaining(r)).map_err(|e| StrongCell::retaining(e));
+            let result = result.map(|r| StrongMutCell::retaining(r)).map_err(|e| StrongCell::retaining(e));
             let result = unsafe{ImpliedSyncUse::new(result)};
             completion.complete(result);
         });
