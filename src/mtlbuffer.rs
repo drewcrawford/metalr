@@ -14,19 +14,26 @@ objc_selector_group! {
     }
     impl MTLBufferSelectors for Sel {}
 }
+//we wrap all contents accesses in `unsafe`
+unsafe impl Send for MTLBuffer {}
+unsafe impl Sync for MTLBuffer {}
 #[allow(non_snake_case)]
 impl MTLBuffer {
-    pub fn contents(&self, pool: &ActiveAutoreleasePool) -> &u8 {
-        unsafe {
-            let contents: *const u8 = Self::perform_primitive(self.assume_nonmut_perform(), Sel::contents(), pool, ());
-            &*contents
-        }
+    ///
+    /// # Safety
+    /// You must ensure your access does not overlap any concurrent accesses.
+    pub unsafe fn contents(&self, pool: &ActiveAutoreleasePool) -> &u8 {
+        let contents: *const u8 = Self::perform_primitive(self.assume_nonmut_perform(), Sel::contents(), pool, ());
+        &*contents
     }
     pub fn length(&self, pool: &ActiveAutoreleasePool) -> NSUInteger {
         unsafe {
             Self::perform_primitive(self.assume_nonmut_perform(), Sel::length(), pool, ())
         }
     }
+    ///
+    /// # Safety
+    /// You must ensure your access does not overlap any concurrent accesses.
     pub fn contents_mut(&mut self, pool: &ActiveAutoreleasePool) -> &mut u8 {
         unsafe {
             let contents: *mut u8 = Self::perform_primitive(self, Sel::contents(), pool, ());
