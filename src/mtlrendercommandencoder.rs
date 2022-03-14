@@ -12,6 +12,7 @@ objc_selector_group! {
         @selector("endEncoding")
         @selector("setFragmentTexture:atIndex:")
         @selector("setFragmentSamplerState:atIndex:")
+        @selector("setVertexTexture:atIndex:")
     }
     impl MTLRenderCommandEncoderSelectors for Sel {}
 }
@@ -22,9 +23,14 @@ impl MTLRenderCommandEncoder {
             Self::perform_primitive(self, Sel::setRenderPipelineState_(), pool, (pipelineState,))
         }
     }
-    pub fn setFragmentTextureAtIndex(&mut self, texture: &MTLTexture, index: NSUInteger, pool: &ActiveAutoreleasePool) {
+    pub fn setFragmentTextureAtIndex(&mut self, texture: Option<&MTLTexture>, index: NSUInteger, pool: &ActiveAutoreleasePool) {
         unsafe {
-            Self::perform_primitive(self, Sel::setFragmentTexture_atIndex(), pool, (texture,index))
+            Self::perform_primitive(self, Sel::setFragmentTexture_atIndex(), pool, (texture.as_ptr(),index))
+        }
+    }
+    pub fn setVertexTextureAtIndex(&mut self, texture: Option<&MTLTexture>, index: NSUInteger, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            Self::perform_primitive(self, Sel::setVertexTexture_atIndex(), pool, (texture.as_ptr(),index))
         }
     }
     pub fn setFragmentSamplerStateAtIndex(&mut self, sampler: &MTLSamplerState, index: NSUInteger, pool: &ActiveAutoreleasePool) {
