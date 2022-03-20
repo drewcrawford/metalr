@@ -1,5 +1,6 @@
 use objr::bindings::*;
 use super::MTLRenderPassColorAttachmentDescriptorArray;
+use crate::MTLRenderPassDepthAttachmentDescriptor;
 use foundationr::NSUInteger;
 objc_class! {
     pub struct MTLRenderPassDescriptor {
@@ -10,6 +11,8 @@ objc_selector_group! {
     trait MTLRenderPassDescriptorSelectors {
         @selector("setRenderTargetHeight:")
         @selector("setRenderTargetWidth:")
+        @selector("depthAttachment")
+        @selector("setDepthAttachment:")
     }
     impl MTLRenderPassDescriptorTrait for Sel {}
 }
@@ -32,6 +35,18 @@ impl MTLRenderPassDescriptor {
             MTLRenderPassColorAttachmentDescriptorArray::assume_nonnil(ptr).assume_retained()
         }
     }
+    pub fn depthAttachment(&self, pool: &ActiveAutoreleasePool) -> StrongCell<MTLRenderPassDepthAttachmentDescriptor> {
+        unsafe {
+            let raw = Self::perform_autorelease_to_retain(self.assume_nonmut_perform(), Sel::depthAttachment(), pool, ());
+            MTLRenderPassDepthAttachmentDescriptor::assume_nonnil(raw) //null_resettable property
+                .assume_retained()
+        }
+    }
+    pub fn set_depthAttachment(&mut self, attachment: &MTLRenderPassDepthAttachmentDescriptor, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            Self::perform_primitive(self, Sel::setDepthAttachment_(), pool, (attachment,))
+        }
+    }
 }
 
 #[test]
@@ -45,6 +60,8 @@ fn configure_target() {
         assert!(description.contains("renderTargetHeight = 1000"));
         assert!(description.contains("renderTargetWidth = 500"));
 
+        let depth_descriptor = MTLRenderPassDepthAttachmentDescriptor::new(pool);
+        descriptor.set_depthAttachment(&depth_descriptor, pool);
     });
 
 }

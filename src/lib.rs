@@ -99,6 +99,7 @@ mod mtlbuffer;
 mod mtlblitcommandencoder;
 mod mtltypes;
 mod mtlsampler;
+mod mtlrenderpassdepthattachmentdescriptor;
 
 pub use mtltexture::MTLTexture;
 pub use mtltexturedescriptor::{MTLTextureDescriptor,MTLHazardTrackingMode, MTLStorageMode, MTLCPUCacheMode, MTLResourceOptions,MTLTextureUsage};
@@ -124,3 +125,4 @@ pub use mtlbuffer::MTLBuffer;
 pub use mtltypes::{MTLOrigin, MTLSize,MTLRegion};
 pub use mtlblitcommandencoder::MTLBlitCommandEncoder;
 pub use mtlsampler::{MTLSamplerDescriptor,MTLSamplerState};
+pub use mtlrenderpassdepthattachmentdescriptor::MTLRenderPassDepthAttachmentDescriptor;
