@@ -37,6 +37,7 @@ or new Metal APIs.
 * MTLRenderPassAttachmentDescriptor
 * MTLRenderPassColorAttachmentDescriptor
 * MTLRenderPassColorAttachmentDescriptorArray
+* MTLRenderPassDepthAttachmentDescriptor
 * MTLRenderPassDescriptor
 
 ## Render pipelines

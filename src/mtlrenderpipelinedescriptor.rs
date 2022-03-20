@@ -1,5 +1,5 @@
 use objr::bindings::*;
-use crate::{MTLFunction, MTLRenderPipelineColorAttachmentDescriptorArray};
+use crate::{MTLFunction, MTLPixelFormat, MTLRenderPipelineColorAttachmentDescriptorArray};
 objc_class! {
     pub struct MTLRenderPipelineDescriptor {
         @class(MTLRenderPipelineDescriptor)
@@ -10,6 +10,9 @@ objc_selector_group! {
         @selector("setVertexFunction:")
         @selector("setFragmentFunction:")
         @selector("colorAttachments")
+        @selector("depthAttachmentPixelFormat")
+        @selector("setDepthAttachmentPixelFormat:")
+
     }
     impl MTLRenderPipelineDescriptorSelectors for Sel {}
 }
@@ -33,6 +36,16 @@ impl MTLRenderPipelineDescriptor {
         unsafe {
             let ptr = Self::perform_autorelease_to_retain(self, Sel::colorAttachments(), pool, ());
             MTLRenderPipelineColorAttachmentDescriptorArray::assume_nonnil(ptr).assume_retained()
+        }
+    }
+    pub fn depthAttachmentPixelFormat(&self, pool: &ActiveAutoreleasePool) -> MTLPixelFormat {
+        unsafe {
+            MTLPixelFormat(Self::perform_primitive(self.assume_nonmut_perform(), Sel::depthAttachmentPixelFormat(), pool, ()))
+        }
+    }
+    pub fn set_depthAttachmentPixelFormat(&mut self, format: MTLPixelFormat, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            Self::perform_primitive(self, Sel::setDepthAttachmentPixelFormat_(), pool, (format.field(),))
         }
     }
 
@@ -73,5 +86,8 @@ fragment void frag(void) {}");
         let mut descriptor = MTLRenderPipelineDescriptor::new(pool);
         let attachments = descriptor.colorAttachments(pool);
         println!("{}",attachments);
+
+        descriptor.set_depthAttachmentPixelFormat(MTLPixelFormat::R32Sint, pool);
+        assert_eq!(descriptor.depthAttachmentPixelFormat(pool), MTLPixelFormat::R32Sint);
     })
 }
