@@ -7,6 +7,8 @@ use std::future::Future;
 use blocksr::continuation::Continuation;
 use foundationr::NSUInteger;
 use crate::mtlbuffer::MTLBuffer;
+use crate::mtldepthstencildescriptor::MTLDepthStencilDescriptor;
+use crate::MTLDepthStencilState;
 /*
 In macOS, in order for the system to provide a default Metal device object, you must link to the CoreGraphics framework.
 You usually need to do this explicitly if you are writing apps that don't use graphics by default, such as command line tools.
@@ -30,6 +32,7 @@ objc_selector_group! {
         @selector("newBufferWithLength:options:")
         @selector("minimumLinearTextureAlignmentForPixelFormat:")
         @selector("newSamplerStateWithDescriptor:")
+        @selector("newDepthStencilStateWithDescriptor:")
     }
     impl MTLDeviceSelectors for Sel {}
 }
@@ -143,6 +146,13 @@ impl MTLDevice {
             MTLSamplerState::nullable(ptr).assume_retained().assume_mut()
         }
     }
+    pub fn newDepthStencilStateWithDescriptor(&self, descriptor: &MTLDepthStencilDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLDepthStencilState>> {
+        unsafe {
+            //assume_nonmut_perform: see comment above
+            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newDepthStencilStateWithDescriptor_(), pool, (descriptor,));
+            MTLDepthStencilState::nullable(ptr).assume_retained().assume_mut()
+        }
+    }
 
 
 }
@@ -161,6 +171,15 @@ impl MTLDevice {
     autoreleasepool(|pool| {
         let descriptor = MTLSamplerDescriptor::new(pool);
         device.newSamplerStateWithDescriptor(&descriptor,pool).unwrap()
+    });
+
+}
+
+#[test] fn test_depth_descriptor() {
+    let device = MTLDevice::default().unwrap();
+    autoreleasepool(|pool| {
+        let descriptor = MTLDepthStencilDescriptor::new(pool);
+        device.newDepthStencilStateWithDescriptor(&descriptor,pool).unwrap()
     });
 }
 

@@ -1,5 +1,5 @@
 use objr::bindings::*;
-use crate::{MTLRenderPipelineState, MTLPrimitiveType, MTLTexture,MTLSamplerState};
+use crate::{MTLRenderPipelineState, MTLPrimitiveType, MTLTexture,MTLSamplerState,MTLDepthStencilState};
 use foundationr::NSUInteger;
 
 objc_instance! {
@@ -13,6 +13,7 @@ objc_selector_group! {
         @selector("setFragmentTexture:atIndex:")
         @selector("setFragmentSamplerState:atIndex:")
         @selector("setVertexTexture:atIndex:")
+        @selector("setDepthStencilState:")
     }
     impl MTLRenderCommandEncoderSelectors for Sel {}
 }
@@ -47,6 +48,11 @@ impl MTLRenderCommandEncoder {
     pub fn endEncoding(&mut self, pool: &ActiveAutoreleasePool) {
         unsafe {
             Self::perform_primitive(self, Sel::endEncoding(), pool, ())
+        }
+    }
+    pub fn setDepthStencilState(&mut self, state: Option<&MTLDepthStencilState>, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            Self::perform_primitive(self, Sel::setDepthStencilState_(),pool,(state.as_ptr(),))
         }
     }
 }

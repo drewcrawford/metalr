@@ -32,7 +32,6 @@ or new Metal APIs.
 * MTLCommandBuffer
 * MTLCommandQueue
 * MTLBuffer
-* MTLDepthStencilDescriptor
 
 ## Render passes
 * MTLRenderPassAttachmentDescriptor
@@ -54,6 +53,10 @@ or new Metal APIs.
 ## Textures
 * MTLTexture
 * MTLTextureDescriptor
+
+## Depth/stencil
+* MTLDepthStencilDescriptor (primarily depth APIs)
+* MTLDepthStencilState
 
 ## Types
 * MTLPixelFormat
