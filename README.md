@@ -32,6 +32,7 @@ or new Metal APIs.
 * MTLCommandBuffer
 * MTLCommandQueue
 * MTLBuffer
+* MTLDepthStencilDescriptor
 
 ## Render passes
 * MTLRenderPassAttachmentDescriptor

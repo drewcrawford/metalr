@@ -42,9 +42,9 @@ impl MTLRenderPassDescriptor {
                 .assume_retained()
         }
     }
-    pub fn set_depthAttachment(&mut self, attachment: &MTLRenderPassDepthAttachmentDescriptor, pool: &ActiveAutoreleasePool) {
+    pub fn set_depthAttachment(&mut self, attachment: Option<&MTLRenderPassDepthAttachmentDescriptor>, pool: &ActiveAutoreleasePool) {
         unsafe {
-            Self::perform_primitive(self, Sel::setDepthAttachment_(), pool, (attachment,))
+            Self::perform_primitive(self, Sel::setDepthAttachment_(), pool, (attachment.as_ptr(),))
         }
     }
 }
@@ -61,7 +61,7 @@ fn configure_target() {
         assert!(description.contains("renderTargetWidth = 500"));
 
         let depth_descriptor = MTLRenderPassDepthAttachmentDescriptor::new(pool);
-        descriptor.set_depthAttachment(&depth_descriptor, pool);
+        descriptor.set_depthAttachment(Some(&depth_descriptor), pool);
     });
 
 }
