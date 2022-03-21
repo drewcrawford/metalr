@@ -39,13 +39,13 @@ impl MTLRenderCommandEncoder {
     ///# Safety
     /// Length is unverified.
     ///
-    /// For a safe wrapper, consider [setVertexBytesFromType].
+    /// For a safe wrapper, consider [setVertexBytesFromRef].
     pub unsafe fn setVertexBytesLengthAtIndex(&mut self, bytes: *const c_void, length: NSUInteger, atIndex: NSUInteger, pool: &ActiveAutoreleasePool) {
         Self::perform_primitive(self,Sel::setVertexBytes_length_atIndex(),pool, (bytes,length,atIndex))
     }
-    pub fn setVertexBytesFromType<T>(&mut self, r#type: T, atIndex: NSUInteger, pool: &ActiveAutoreleasePool) {
+    pub fn setVertexBytesFromRef<T>(&mut self, r#ref: &T, atIndex: NSUInteger, pool: &ActiveAutoreleasePool) {
         unsafe {
-            self.setVertexBytesLengthAtIndex(&r#type as *const T as *const c_void,std::mem::size_of::<T>() as u64, atIndex,pool)
+            self.setVertexBytesLengthAtIndex(r#ref as *const T as *const c_void,std::mem::size_of::<T>() as u64, atIndex,pool)
         }
     }
     pub fn setFragmentSamplerStateAtIndex(&mut self, sampler: &MTLSamplerState, index: NSUInteger, pool: &ActiveAutoreleasePool) {
@@ -96,7 +96,7 @@ impl MTLRenderCommandEncoder {
         let mut buffer = queue.commandBuffer(pool).unwrap();
         let mut encoder = buffer.renderCommandEncoderWithDescriptor( &pass_descriptor, pool).unwrap();
         encoder.setRenderPipelineState( &pso, pool);
-        encoder.setVertexBytesFromType(2 as u32, 0,pool);
+        encoder.setVertexBytesFromRef(&(2 as u32), 0,pool);
         encoder.drawPrimitivesVertexStartVertexCount( MTLPrimitiveType::Triangle,0,3, pool);
         encoder.endEncoding(pool);
     })
