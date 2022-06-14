@@ -102,6 +102,7 @@ mod mtlsampler;
 mod mtlrenderpassdepthattachmentdescriptor;
 mod mtldepthstencildescriptor;
 mod mtldepthstencilstate;
+mod mtlargument;
 
 pub use mtltexture::MTLTexture;
 pub use mtltexturedescriptor::{MTLTextureDescriptor,MTLHazardTrackingMode, MTLStorageMode, MTLCPUCacheMode, MTLResourceOptions,MTLTextureUsage};
@@ -130,3 +131,4 @@ pub use mtlsampler::{MTLSamplerDescriptor,MTLSamplerState};
 pub use mtlrenderpassdepthattachmentdescriptor::MTLRenderPassDepthAttachmentDescriptor;
 pub use mtldepthstencildescriptor::{MTLDepthStencilDescriptor, MTLCompareFunction};
 pub use mtldepthstencilstate::MTLDepthStencilState;
+pub use mtlargument::{MTLDataType,HasMTLDataType};
