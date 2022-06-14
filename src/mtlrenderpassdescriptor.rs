@@ -44,7 +44,7 @@ impl MTLRenderPassDescriptor {
     }
     pub fn set_depthAttachment(&mut self, attachment: Option<&MTLRenderPassDepthAttachmentDescriptor>, pool: &ActiveAutoreleasePool) {
         unsafe {
-            Self::perform_primitive(self, Sel::setDepthAttachment_(), pool, (attachment.as_ptr(),))
+            Self::perform_primitive(self, Sel::setDepthAttachment_(), pool, (attachment.as_ptr().assume_nonmut_perform(),))
         }
     }
 }

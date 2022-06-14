@@ -19,7 +19,7 @@ objc_selector_group! {
 impl MTLCommandBuffer {
     pub fn renderCommandEncoderWithDescriptor(&mut self,  descriptor: &MTLRenderPassDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLRenderCommandEncoder>> {
         unsafe {
-            let ptr = Self::perform_autorelease_to_retain(self, Sel::renderCommandEncoderWithDescriptor_(), pool, (descriptor,));
+            let ptr = Self::perform_autorelease_to_retain(self, Sel::renderCommandEncoderWithDescriptor_(), pool, (descriptor.assume_nonmut_perform(),));
             MTLRenderCommandEncoder::nullable(ptr).assume_retained().assume_mut()
         }
     }
@@ -27,7 +27,7 @@ impl MTLCommandBuffer {
         unsafe{ Self::perform_primitive(self, Sel::commit(), pool, ()) }
     }
     pub fn presentDrawable(&mut self, pool: &ActiveAutoreleasePool, drawable: &MTLDrawable) {
-        unsafe{ Self::perform_primitive(self,Sel::presentDrawable_(), pool, (drawable,)) }
+        unsafe{ Self::perform_primitive(self,Sel::presentDrawable_(), pool, (drawable.assume_nonmut_perform(),)) }
     }
     pub fn blitCommandEncoder(&mut self, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLBlitCommandEncoder>> {
         unsafe {

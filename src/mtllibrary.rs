@@ -20,7 +20,7 @@ unsafe impl Arguable for &NewFunctionCompletionHandler {}
 impl MTLLibrary {
     pub fn newFunctionWithName(&mut self, name: &NSString, pool: &ActiveAutoreleasePool) -> Option<StrongCell<MTLFunction>> {
         unsafe {
-            let ptr = Self::perform(self, Sel::newFunctionWithName_(), pool, (name,));
+            let ptr = Self::perform(self, Sel::newFunctionWithName_(), pool, (name.assume_nonmut_perform(),));
             MTLFunction::nullable(ptr).assume_retained()
         }
     }
@@ -38,7 +38,7 @@ impl MTLLibrary {
         })};
         unsafe {
             //I'm pretty confident it's ok to do this nonmutably.  Maybe consider this for the other fns as well?
-            Self::perform_primitive(self.assume_nonmut_perform(), Sel::newFunctionWithName_constantValues_completionHandler(), pool, (name, constantValues, &block))
+            Self::perform_primitive(self.assume_nonmut_perform(), Sel::newFunctionWithName_constantValues_completionHandler(), pool, (name.assume_nonmut_perform(), constantValues.assume_nonmut_perform(), &block))
         }
     }
 

@@ -36,13 +36,14 @@ impl MTLBuffer {
     /// You must ensure your access does not overlap any concurrent accesses.
     pub fn contents_mut(&mut self, pool: &ActiveAutoreleasePool) -> &mut u8 {
         unsafe {
-            let contents: *mut u8 = Self::perform_primitive(self, Sel::contents(), pool, ());
-            &mut *contents
+            let contents: *const u8 = Self::perform_primitive(self, Sel::contents(), pool, ());
+            //safe because we are mut ourselves
+            &mut* (contents as *mut u8)
         }
     }
     pub fn newTextureWithDescriptor(&mut self, descriptor: &MTLTextureDescriptor, offset: NSUInteger, bytesPerRow: NSUInteger, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLTexture>> {
         unsafe {
-            let raw = Self::perform(self, Sel::newTextureWithDescriptor_offset_bytesPerRow(), pool, (descriptor, offset, bytesPerRow));
+            let raw = Self::perform(self, Sel::newTextureWithDescriptor_offset_bytesPerRow(), pool, (descriptor.assume_nonmut_perform(), offset, bytesPerRow));
             MTLTexture::nullable(raw).assume_retained().assume_mut()
         }
     }

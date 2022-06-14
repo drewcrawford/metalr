@@ -62,7 +62,7 @@ impl<T: MTLRenderPassAttachmentDescriptorTrait> MTLRenderPassAttachmentDescripto
     }
     fn setTexture(&mut self, texture: &MTLTexture,pool: &ActiveAutoreleasePool) {
         unsafe {
-            Self::perform_primitive(self, Sel::setTexture_(), pool, (texture,))
+            Self::perform_primitive(self, Sel::setTexture_(), pool, (texture.assume_nonmut_perform(),))
         }
     }
 

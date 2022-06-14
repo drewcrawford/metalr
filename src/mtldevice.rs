@@ -67,14 +67,14 @@ impl MTLDevice {
     pub fn newTextureWithDescriptor(&self,  descriptor: &super::MTLTextureDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLTexture>> {
         unsafe {
             //assume_nonmut_perform: see comment above
-            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newTextureWithDescriptor_(), pool, (descriptor,));
+            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newTextureWithDescriptor_(), pool, (descriptor.assume_nonmut_perform(),));
             MTLTexture::nullable(ptr).assume_retained().assume_mut()
         }
     }
     pub fn newLibraryWithFile<'a>(&self, file: &NSString, pool: &'a ActiveAutoreleasePool) -> Result<StrongMutCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
         unsafe {
             //assume_nonmut_perform: see comment above
-            let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newLibraryWithFile_error(), pool, (file,));
+            let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newLibraryWithFile_error(), pool, (file.assume_nonmut_perform(),));
             ptr.map(|d| MTLLibrary::assume_nonnil(d).assume_retained().assume_mut())
 
         }
@@ -84,7 +84,7 @@ impl MTLDevice {
     pub fn newLibraryWithSource<'a>(&self, source: &NSString, _options: Option<()>, pool: &'a ActiveAutoreleasePool)  -> Result<StrongMutCell<MTLLibrary>, AutoreleasedCell<'a, NSError>>{
         unsafe {
             //assume_nonmut_perform: see comment above
-            let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newLibraryWithSource_options_error(), pool, (source, std::ptr::null() as *const c_void));
+            let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newLibraryWithSource_options_error(), pool, (source.assume_nonmut_perform(), std::ptr::null() as *const c_void));
             ptr.map(|m| MTLLibrary::assume_nonnil(m).assume_retained().assume_mut())
         }
     }
@@ -92,7 +92,7 @@ impl MTLDevice {
     pub fn newRenderPipelineStateWithDescriptor<'a>(&self, descriptor: &MTLRenderPipelineDescriptor, pool: &'a ActiveAutoreleasePool) -> Result<StrongMutCell<MTLRenderPipelineState>, AutoreleasedCell<'a, NSError>> {
         unsafe {
             //assume_nonmut_perform: see comment above
-            let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newRenderPipelineStateWithDescriptor_error(), pool, (descriptor,));
+            let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newRenderPipelineStateWithDescriptor_error(), pool, (descriptor.assume_nonmut_perform(),));
             ptr.map(|m| MTLRenderPipelineState::assume_nonnil(m).assume_retained().assume_mut())
         }
     }
@@ -110,7 +110,7 @@ impl MTLDevice {
         })};
         unsafe {
             //assume_nonmut_perform: see comment above
-            Self::perform_primitive(self.assume_nonmut_perform(), Sel::newRenderPipelineStateWithDescriptor_completionHandler(), pool, (descriptor, &block))
+            Self::perform_primitive(self.assume_nonmut_perform(), Sel::newRenderPipelineStateWithDescriptor_completionHandler(), pool, (descriptor.assume_nonmut_perform(), &block))
         }
     }
 
@@ -142,14 +142,14 @@ impl MTLDevice {
     pub fn newSamplerStateWithDescriptor(&self, descriptor: &MTLSamplerDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLSamplerState>> {
         unsafe {
             //assume_nonmut_perform: see comment above
-            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newSamplerStateWithDescriptor_(), pool, (descriptor,));
+            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newSamplerStateWithDescriptor_(), pool, (descriptor.assume_nonmut_perform(),));
             MTLSamplerState::nullable(ptr).assume_retained().assume_mut()
         }
     }
     pub fn newDepthStencilStateWithDescriptor(&self, descriptor: &MTLDepthStencilDescriptor, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLDepthStencilState>> {
         unsafe {
             //assume_nonmut_perform: see comment above
-            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newDepthStencilStateWithDescriptor_(), pool, (descriptor,));
+            let ptr = Self::perform(self.assume_nonmut_perform(), Sel::newDepthStencilStateWithDescriptor_(), pool, (descriptor.assume_nonmut_perform(),));
             MTLDepthStencilState::nullable(ptr).assume_retained().assume_mut()
         }
     }

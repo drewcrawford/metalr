@@ -24,12 +24,12 @@ impl MTLRenderPipelineDescriptor {
     }
     pub fn set_vertex_function(&mut self, function: &MTLFunction,pool: &ActiveAutoreleasePool) {
         unsafe {
-            Self::perform_primitive(self, Sel::setVertexFunction_(), pool, (function,))
+            Self::perform_primitive(self, Sel::setVertexFunction_(), pool, (function.assume_nonmut_perform(),))
         }
     }
     pub fn set_fragment_function(&mut self,  function: &MTLFunction,pool: &ActiveAutoreleasePool) {
         unsafe {
-            Self::perform_primitive(self, Sel::setFragmentFunction_(), pool, (function,))
+            Self::perform_primitive(self, Sel::setFragmentFunction_(), pool, (function.assume_nonmut_perform(),))
         }
     }
     pub fn colorAttachments(&mut self, pool: &ActiveAutoreleasePool) -> StrongCell<MTLRenderPipelineColorAttachmentDescriptorArray> {

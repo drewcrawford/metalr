@@ -17,11 +17,11 @@ objc_selector_group! {
 #[allow(non_snake_case)]
 impl MTLBlitCommandEncoder {
     pub fn copyFromBuffer(&mut self, buffer: &MTLBuffer, sourceOffset: NSUInteger, sourceBytesPerRow: NSUInteger, sourceBytesPerImage: NSUInteger, sourceSize: MTLSize,
-    toTexture: &MTLTexture, destinationSlice: NSUInteger, destinationLevel: NSUInteger, destinationOrigin: MTLOrigin, pool: &ActiveAutoreleasePool) {
+    toTexture: &mut MTLTexture, destinationSlice: NSUInteger, destinationLevel: NSUInteger, destinationOrigin: MTLOrigin, pool: &ActiveAutoreleasePool) {
         unsafe {
             Self::perform_primitive(self, Sel::copyFromBuffer_sourceOffset_sourceBytesPerRow_sourceBytesPerImage_sourceSize_toTexture_destinationSlice_destinationLevel_destinationOrigin(),
             pool,
-                                    (buffer, sourceOffset, sourceBytesPerRow, sourceBytesPerImage, sourceSize,
+                                    (buffer.assume_nonmut_perform(), sourceOffset, sourceBytesPerRow, sourceBytesPerImage, sourceSize,
                                      toTexture, destinationSlice, destinationLevel, destinationOrigin))
         }
 
