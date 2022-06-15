@@ -95,6 +95,7 @@ unsafe impl ConstantValue for i32 {}
 unsafe impl ConstantValue for u64 {}
 unsafe impl ConstantValue for i64 {}
 unsafe impl ConstantValue for f32 {}
+unsafe impl ConstantValue for bool {}
 
 
 
