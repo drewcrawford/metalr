@@ -1,6 +1,7 @@
 use std::ffi::c_void;
 use foundationr::NSUInteger;
 use objr::bindings::*;
+use crate::MTLPixelFormat;
 use crate::mtltypes::MTLRegion;
 objc_instance! {
     pub struct MTLTexture;
@@ -14,6 +15,7 @@ objc_selector_group! {
         @selector("width")
         @selector("height")
         @selector("replaceRegion:mipmapLevel:withBytes:bytesPerRow:")
+        @selector("pixelFormat")
     }
     impl MTLTextureSelectors for Sel {}
 }
@@ -30,5 +32,18 @@ impl MTLTexture {
             Self::perform_primitive(self, Sel::replaceRegion_mipmapLevel_withBytes_bytesPerRow(), pool, (region, mipmapLevel, withBytes, bytesPerRow))
         }
     }
+    pub fn pixelFormat(&self,pool: &ActiveAutoreleasePool) -> MTLPixelFormat {
+        MTLPixelFormat(unsafe { Self::perform_primitive(self.assume_nonmut_perform(), Sel::pixelFormat(), pool, ())})
+    }
 }
 
+#[test] fn smoke() {
+    autoreleasepool(|pool| {
+        use crate::*;
+
+        let device = super::MTLDevice::default().unwrap();
+        let texture_descriptor = super::MTLTextureDescriptor::new(pool);
+        let texture = device.newTextureWithDescriptor(&texture_descriptor, pool).unwrap();
+        assert_eq!(texture.pixelFormat(pool), MTLPixelFormat::RGBA8Unorm);
+    })
+}
