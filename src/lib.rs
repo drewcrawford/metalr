@@ -113,7 +113,7 @@ pub use mtlrenderpipelinecolorattachmentdescriptorarray::MTLRenderPipelineColorA
 pub use mtlrenderpassdescriptor::MTLRenderPassDescriptor;
 pub use mtlrendercommandencoder::MTLRenderCommandEncoder;
 pub use mtldrawable::MTLDrawable;
-pub use mtlrenderpipelinecolorattachmentdescriptor::MTLRenderPipelineColorAttachmentDescriptor;
+pub use mtlrenderpipelinecolorattachmentdescriptor::*;
 pub use mtlrenderpasscolorattachmentdescriptorarray::MTLRenderPassColorAttachmentDescriptorArray;
 pub use mtlprimitivetype::MTLPrimitiveType;
 pub use mtlpixelformat::MTLPixelFormat;
