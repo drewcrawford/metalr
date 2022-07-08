@@ -1,6 +1,6 @@
 use foundationr::{NSUInteger,NSRange};
 use objr::bindings::*;
-use crate::{MTLTextureDescriptor,MTLTexture};
+use crate::{MTLTextureDescriptor, MTLTexture, MTLResourceOptions, MTLCPUCacheMode, MTLStorageMode, MTLHazardTrackingMode};
 
 objc_instance! {
     pub struct MTLBuffer;
@@ -11,6 +11,7 @@ objc_selector_group! {
         @selector("newTextureWithDescriptor:offset:bytesPerRow:")
         @selector("length")
         @selector("didModifyRange:")
+        @selector("addDebugMarker:range:")
     }
     impl MTLBufferSelectors for Sel {}
 }
@@ -52,5 +53,18 @@ impl MTLBuffer {
             Self::perform_primitive(self, Sel::didModifyRange_(), pool, (range,))
         }
     }
+    pub fn addDebugMarker(&mut self, marker: &NSString, range: NSRange, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            Self::perform_primitive(self, Sel::addDebugMarker_range(), pool, (marker.assume_nonmut_perform(),range))
+        }
+    }
+}
+
+#[test] fn smoke() {
+    let device = crate::MTLDevice::default().unwrap();
+    autoreleasepool(|pool| {
+        let mut buffer = device.newBufferWithLengthOptions(1, MTLResourceOptions::with_options(MTLCPUCacheMode::DefaultCache, MTLStorageMode::Private, MTLHazardTrackingMode::Default),pool).unwrap();
+        buffer.addDebugMarker(objc_nsstring!("smoke_test"), NSRange{ location: 0, length: 0 }, pool)
+    })
 }
 
