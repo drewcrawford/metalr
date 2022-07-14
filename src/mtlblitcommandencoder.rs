@@ -10,6 +10,7 @@ objc_selector_group! {
     trait MTLBlitCommandEncoderSelectors {
         @selector("copyFromBuffer:sourceOffset:sourceBytesPerRow:sourceBytesPerImage:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:")
         @selector("endEncoding")
+        @selector("optimizeContentsForGPUAccess:")
     }
     impl MTLBlitCommandEncoderSelectors for Sel {}
 }
@@ -26,9 +27,27 @@ impl MTLBlitCommandEncoder {
         }
 
     }
+    pub fn optimizeContentsForGPUAccess(&mut self, texture: &mut MTLTexture, pool: &ActiveAutoreleasePool) {
+        unsafe{Self::perform_primitive(self, Sel::optimizeContentsForGPUAccess_(), pool, (texture,))}
+    }
     pub fn endEncoding(&mut self, pool: &ActiveAutoreleasePool) {
         unsafe {
             Self::perform_primitive(self, Sel::endEncoding(), pool, ())
         }
     }
+}
+
+#[test] fn smoke() {
+    use crate::*;
+    autoreleasepool(|pool| {
+        let device = MTLDevice::default().unwrap();
+        let command_q = device.newCommandQueue(pool).unwrap();
+        let mut command_buffer = command_q.commandBuffer(pool).unwrap();
+        let mut encoder = command_buffer.blitCommandEncoder(pool).unwrap();
+        let texture_descriptor = MTLTextureDescriptor::new(pool);
+        let mut texture = device.newTextureWithDescriptor(&texture_descriptor,pool).unwrap();
+        encoder.optimizeContentsForGPUAccess(&mut texture, pool);
+        encoder.endEncoding(pool);
+    })
+
 }
