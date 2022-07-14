@@ -48,7 +48,7 @@ or new Metal APIs.
 
 ## Encoders
 * MTLBlitCommandEncoder
-* MTLRendercommandEncoder
+* MTLRenderCommandEncoder
 
 ## Textures
 * MTLTexture

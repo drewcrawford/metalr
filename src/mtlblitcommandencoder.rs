@@ -11,6 +11,7 @@ objc_selector_group! {
         @selector("copyFromBuffer:sourceOffset:sourceBytesPerRow:sourceBytesPerImage:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:")
         @selector("endEncoding")
         @selector("optimizeContentsForGPUAccess:")
+        @selector("copyFromTexture:toTexture:")
     }
     impl MTLBlitCommandEncoderSelectors for Sel {}
 }
@@ -27,6 +28,12 @@ impl MTLBlitCommandEncoder {
         }
 
     }
+    pub fn copyFromTextureToTexture(&mut self, fromTexture: &MTLTexture, toTexture: &mut MTLTexture, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            Self::perform_primitive(self, Sel::copyFromTexture_toTexture(), pool, (fromTexture.assume_nonmut_perform(), toTexture))
+        }
+    }
+
     pub fn optimizeContentsForGPUAccess(&mut self, texture: &mut MTLTexture, pool: &ActiveAutoreleasePool) {
         unsafe{Self::perform_primitive(self, Sel::optimizeContentsForGPUAccess_(), pool, (texture,))}
     }
@@ -46,6 +53,8 @@ impl MTLBlitCommandEncoder {
         let mut encoder = command_buffer.blitCommandEncoder(pool).unwrap();
         let texture_descriptor = MTLTextureDescriptor::new(pool);
         let mut texture = device.newTextureWithDescriptor(&texture_descriptor,pool).unwrap();
+        let texture2 = device.newTextureWithDescriptor(&texture_descriptor, pool).unwrap();
+        encoder.copyFromTextureToTexture(&texture2,&mut texture,pool);
         encoder.optimizeContentsForGPUAccess(&mut texture, pool);
         encoder.endEncoding(pool);
     })

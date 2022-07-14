@@ -1,3 +1,5 @@
+use std::future::Future;
+use blocksr::continuation::Continuation;
 use objr::bindings::*;
 use super::{MTLRenderPassDescriptor,MTLRenderCommandEncoder,MTLDrawable};
 use crate::mtlblitcommandencoder::MTLBlitCommandEncoder;
@@ -11,9 +13,12 @@ objc_selector_group! {
         @selector("commit")
         @selector("presentDrawable:")
         @selector("blitCommandEncoder")
+        @selector("addCompletedHandler:")
     }
     impl MTLCommandBufferSelectors for Sel {}
 }
+blocksr::once_escaping!(MTLCommandBufferHandler(buffer: &MTLCommandBuffer) -> ());
+unsafe impl Arguable for &MTLCommandBufferHandler {}
 
 #[allow(non_snake_case)]
 impl MTLCommandBuffer {
@@ -35,6 +40,21 @@ impl MTLCommandBuffer {
             MTLBlitCommandEncoder::nullable(ptr).assume_retained().assume_mut()
         }
     }
+    pub fn addCompletedHandler<C: FnOnce(&MTLCommandBuffer) + Send + 'static>(&mut self, handler: C, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            let block = MTLCommandBufferHandler::new(handler);
+            Self::perform_primitive(self, Sel::addCompletedHandler_(), pool, (&block,))
+        }
+    }
+
+    pub fn waitUntilCompletedAsync(&mut self, pool: &ActiveAutoreleasePool) -> impl Future<Output=()> {
+        let (continuation,completer) = Continuation::<(),_>::new();
+        self.addCompletedHandler(|_| {
+            completer.complete(())
+        },pool);
+        continuation
+    }
+
 }
 
 #[test] fn smoke_test() {
@@ -48,7 +68,13 @@ impl MTLCommandBuffer {
         descriptor.set_renderTargetWidth(100, pool);
         let mut render_pass = command_buffer.renderCommandEncoderWithDescriptor(&descriptor, pool).unwrap();
         render_pass.endEncoding(pool);
+        let (sender,receiver) = std::sync::mpsc::sync_channel(1);
+        command_buffer.addCompletedHandler(move |_| {
+            sender.send(()).unwrap();
+        },pool);
         command_buffer.commit(pool);
+        receiver.recv().unwrap();
+
     });
 
 }

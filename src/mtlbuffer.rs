@@ -1,6 +1,6 @@
 use foundationr::{NSUInteger,NSRange};
 use objr::bindings::*;
-use crate::{MTLTextureDescriptor, MTLTexture, MTLResourceOptions, MTLCPUCacheMode, MTLStorageMode, MTLHazardTrackingMode};
+use crate::{MTLTextureDescriptor, MTLTexture};
 
 objc_instance! {
     pub struct MTLBuffer;
@@ -61,6 +61,7 @@ impl MTLBuffer {
 }
 
 #[test] fn smoke() {
+    use crate::*;
     let device = crate::MTLDevice::default().unwrap();
     autoreleasepool(|pool| {
         let mut buffer = device.newBufferWithLengthOptions(1, MTLResourceOptions::with_options(MTLCPUCacheMode::DefaultCache, MTLStorageMode::Private, MTLHazardTrackingMode::Default),pool).unwrap();
