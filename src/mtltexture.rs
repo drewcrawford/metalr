@@ -42,6 +42,12 @@ impl MTLTexture {
         unsafe { &mut * (self as *mut _ as *mut MTLResource) }
     }
 }
+impl PartialEq for MTLTexture {
+    fn eq(&self, other: &Self) -> bool {
+        (self as *const MTLTexture) == (other as *const MTLTexture)
+    }
+}
+impl Eq for MTLTexture {}
 
 impl<'a> From<&'a MTLTexture> for &'a MTLResource {
     fn from(t: &'a MTLTexture) -> Self {
