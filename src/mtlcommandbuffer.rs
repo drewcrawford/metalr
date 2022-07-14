@@ -47,11 +47,18 @@ impl MTLCommandBuffer {
         }
     }
 
-    pub fn waitUntilCompletedAsync(&mut self, pool: &ActiveAutoreleasePool) -> impl Future<Output=()> {
+    /**
+    A device that
+    1.  Adds a completion handler
+    2.  commits
+    3.  awaits the completion handler
+    */
+    pub fn commitWaitUntilCompletedAsync(&mut self, pool: &ActiveAutoreleasePool) -> impl Future<Output=()> {
         let (continuation,completer) = Continuation::<(),_>::new();
         self.addCompletedHandler(|_| {
             completer.complete(())
         },pool);
+        self.commit(pool);
         continuation
     }
 
