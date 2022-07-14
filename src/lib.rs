@@ -103,7 +103,9 @@ mod mtlrenderpassdepthattachmentdescriptor;
 mod mtldepthstencildescriptor;
 mod mtldepthstencilstate;
 mod mtlargument;
+mod mtlresource;
 
+pub use mtlresource::*;
 pub use mtltexture::MTLTexture;
 pub use mtltexturedescriptor::{MTLTextureDescriptor,MTLHazardTrackingMode, MTLStorageMode, MTLCPUCacheMode, MTLResourceOptions,MTLTextureUsage};
 pub use mtlrenderpipelinedescriptor::MTLRenderPipelineDescriptor;
