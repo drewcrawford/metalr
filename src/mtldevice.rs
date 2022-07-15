@@ -5,7 +5,7 @@ use crate::mtllibrary::MTLLibrary;
 use crate::{MTLRenderPipelineDescriptor, MTLTexture, MTLResourceOptions, MTLPixelFormat, MTLRenderPipelineState, MTLSamplerDescriptor,MTLSamplerState};
 use std::future::Future;
 use blocksr::continuation::Continuation;
-use foundationr::NSUInteger;
+use foundationr::{NSInteger, NSUInteger};
 use crate::mtlbuffer::MTLBuffer;
 use crate::mtldepthstencildescriptor::MTLDepthStencilDescriptor;
 use crate::MTLDepthStencilState;
@@ -17,6 +17,30 @@ You usually need to do this explicitly if you are writing apps that don't use gr
 #[link(name = "Metal", kind = "framework")]
 extern "C" {
     fn MTLCreateSystemDefaultDevice() -> *mut MTLDevice;
+}
+
+objc_enum! {
+    pub struct MTLGPUFamily<NSInteger>;
+    impl MTLGPUFamily {
+        Apple1 = 1001,
+    Apple2 = 1002,
+    Apple3 = 1003,
+   Apple4 = 1004,
+    Apple5 = 1005,
+    Apple6 = 1006,
+    Apple7 = 1007,
+        Apple8 = 1008,
+
+    Mac1 = 2001,
+    Mac2 = 2002,
+
+    Common1 = 3001,
+    Common2 = 3002,
+    Common3 = 3003,
+
+    MacCatalyst1 = 4001,
+    MacCatalyst2 = 4002
+    }
 }
 objc_instance! {
     pub struct MTLDevice;
@@ -33,6 +57,7 @@ objc_selector_group! {
         @selector("minimumLinearTextureAlignmentForPixelFormat:")
         @selector("newSamplerStateWithDescriptor:")
         @selector("newDepthStencilStateWithDescriptor:")
+        @selector("supportsFamily:")
     }
     impl MTLDeviceSelectors for Sel {}
 }
@@ -153,6 +178,11 @@ impl MTLDevice {
             MTLDepthStencilState::nullable(ptr).assume_retained().assume_mut()
         }
     }
+    pub fn supportsFamily(&self, family: MTLGPUFamily, pool: &ActiveAutoreleasePool) -> bool {
+        unsafe {
+            Self::perform_primitive(self.assume_nonmut_perform(), Sel::supportsFamily_(), pool, (family.field(),))
+        }
+    }
 
 
 }
@@ -211,5 +241,18 @@ impl MTLDevice {
         let e = result.unwrap();
         println!("{}",e);
 
+    })
+}
+
+#[test] fn support() {
+    let device = MTLDevice::default().unwrap();
+    autoreleasepool(|pool| {
+        println!("supports apple7 {}",device.supportsFamily(MTLGPUFamily::Apple7, pool));
+        println!("supports apple8 {}",device.supportsFamily(MTLGPUFamily::Apple8, pool));
+        println!("supports mac2 {}",device.supportsFamily(MTLGPUFamily::Mac2, pool));
+        println!("supports common3 {}", device.supportsFamily(MTLGPUFamily::Common3, pool));
+        println!("supports catalyst1 {}",device.supportsFamily(MTLGPUFamily::MacCatalyst1, pool));
+        println!("supports catalyst2 {}",device.supportsFamily(MTLGPUFamily::MacCatalyst2, pool));
+        panic!("programmatic failure")
     })
 }

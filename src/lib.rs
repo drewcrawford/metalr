@@ -120,7 +120,7 @@ pub use mtlrenderpasscolorattachmentdescriptorarray::MTLRenderPassColorAttachmen
 pub use mtlprimitivetype::MTLPrimitiveType;
 pub use mtlpixelformat::MTLPixelFormat;
 pub use mtlrenderpasscolorattachmentdescriptor::MTLRenderPassColorAttachmentDescriptor;
-pub use mtldevice::MTLDevice;
+pub use mtldevice::*;
 pub use mtlrenderpassattachmentdescriptor::{MTLLoadAction,MTLStoreAction,MTLRenderPassAttachmentDescriptorTrait,MTLRenderPassAttachmentDescriptorImpl};
 pub use mtlcommandqueue::MTLCommandQueue;
 pub use mtlcommandbuffer::MTLCommandBuffer;
