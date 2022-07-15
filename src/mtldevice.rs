@@ -251,7 +251,7 @@ impl MTLDevice {
         println!("supports apple8 {}",device.supportsFamily(MTLGPUFamily::Apple8, pool));
         println!("supports mac1 {}",device.supportsFamily(MTLGPUFamily::Mac1, pool));
         println!("supports mac2 {}",device.supportsFamily(MTLGPUFamily::Mac2, pool));
-        println!("supports common1 {}",device.supportsFamily(MTLGPUFamily::Common1));
+        println!("supports common1 {}",device.supportsFamily(MTLGPUFamily::Common1, pool));
         println!("supports common2 {}", device.supportsFamily(MTLGPUFamily::Common2, pool));
         println!("supports common3 {}", device.supportsFamily(MTLGPUFamily::Common3, pool));
         println!("supports catalyst1 {}",device.supportsFamily(MTLGPUFamily::MacCatalyst1, pool));
