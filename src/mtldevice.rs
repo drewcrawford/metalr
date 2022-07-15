@@ -256,6 +256,5 @@ impl MTLDevice {
         println!("supports common3 {}", device.supportsFamily(MTLGPUFamily::Common3, pool));
         println!("supports catalyst1 {}",device.supportsFamily(MTLGPUFamily::MacCatalyst1, pool));
         println!("supports catalyst2 {}",device.supportsFamily(MTLGPUFamily::MacCatalyst2, pool));
-        panic!("programmatic failure")
     })
 }
