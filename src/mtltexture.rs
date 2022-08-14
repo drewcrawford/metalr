@@ -1,7 +1,7 @@
 use std::ffi::c_void;
 use foundationr::NSUInteger;
 use objr::bindings::*;
-use crate::{MTLPixelFormat,MTLResource};
+use crate::{MTLPixelFormat,MTLResource,MTLBuffer};
 use crate::mtltypes::MTLRegion;
 objc_instance! {
     pub struct MTLTexture;
@@ -16,6 +16,7 @@ objc_selector_group! {
         @selector("height")
         @selector("replaceRegion:mipmapLevel:withBytes:bytesPerRow:")
         @selector("pixelFormat")
+        @selector("buffer")
     }
     impl MTLTextureSelectors for Sel {}
 }
@@ -30,6 +31,12 @@ impl MTLTexture {
     pub fn replaceRegion(&mut self, region:MTLRegion, mipmapLevel: NSUInteger, withBytes: *const c_void, bytesPerRow: NSUInteger, pool: &ActiveAutoreleasePool) {
         unsafe {
             Self::perform_primitive(self, Sel::replaceRegion_mipmapLevel_withBytes_bytesPerRow(), pool, (region, mipmapLevel, withBytes, bytesPerRow))
+        }
+    }
+    pub fn buffer(&self,pool: &ActiveAutoreleasePool) -> Option<StrongCell<MTLBuffer>> {
+        unsafe {
+            let raw = Self::perform_autorelease_to_retain(self.assume_nonmut_perform(), Sel::buffer(), pool, ());
+            MTLBuffer::nullable(raw).assume_retained()
         }
     }
     pub fn pixelFormat(&self,pool: &ActiveAutoreleasePool) -> MTLPixelFormat {
