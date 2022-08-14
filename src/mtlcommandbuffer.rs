@@ -14,6 +14,8 @@ objc_selector_group! {
         @selector("presentDrawable:")
         @selector("blitCommandEncoder")
         @selector("addCompletedHandler:")
+        @selector("waitUntilScheduled")
+        @selector("waitUntilCompleted")
     }
     impl MTLCommandBufferSelectors for Sel {}
 }
@@ -60,6 +62,14 @@ impl MTLCommandBuffer {
         },pool);
         self.commit(pool);
         continuation
+    }
+
+    pub fn waitUntilScheduled(&mut self, pool: &ActiveAutoreleasePool) {
+        unsafe{Self::perform_primitive(self, Sel::waitUntilScheduled(), pool, ())}
+    }
+
+    pub fn waitUntilCompleted(&mut self, pool: &ActiveAutoreleasePool) {
+        unsafe{Self::perform_primitive(self, Sel::waitUntilCompleted(), pool, ())}
     }
 
 }
