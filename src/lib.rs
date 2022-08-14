@@ -104,6 +104,7 @@ mod mtldepthstencildescriptor;
 mod mtldepthstencilstate;
 mod mtlargument;
 mod mtlresource;
+mod mtlcommandencoder;
 
 pub use mtlresource::*;
 pub use mtltexture::MTLTexture;
@@ -134,3 +135,4 @@ pub use mtlrenderpassdepthattachmentdescriptor::MTLRenderPassDepthAttachmentDesc
 pub use mtldepthstencildescriptor::{MTLDepthStencilDescriptor, MTLCompareFunction};
 pub use mtldepthstencilstate::MTLDepthStencilState;
 pub use mtlargument::{MTLDataType,HasMTLDataType};
+pub use mtlcommandencoder::*;

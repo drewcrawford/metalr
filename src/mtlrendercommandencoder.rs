@@ -1,6 +1,6 @@
 use std::ffi::c_void;
 use objr::bindings::*;
-use crate::{MTLRenderPipelineState, MTLPrimitiveType, MTLTexture,MTLSamplerState,MTLDepthStencilState};
+use crate::{MTLRenderPipelineState, MTLPrimitiveType, MTLTexture,MTLSamplerState,MTLDepthStencilState,MTLCommandEncoder};
 use foundationr::NSUInteger;
 
 objc_instance! {
@@ -68,6 +68,14 @@ impl MTLRenderCommandEncoder {
         unsafe {
             Self::perform_primitive(self, Sel::setDepthStencilState_(),pool,(state.as_ptr().assume_nonmut_perform(),))
         }
+    }
+    ///Casts to &[MTLCommandEncoder]
+    pub fn as_command_encoder(&self) -> &MTLCommandEncoder {
+        unsafe{self.cast()}
+    }
+    ///Casts to &mut [MTLCommandEncoder]
+    pub fn as_command_encoder_mut(&mut self) -> &mut MTLCommandEncoder {
+        unsafe{self.cast_mut() }
     }
 }
 
