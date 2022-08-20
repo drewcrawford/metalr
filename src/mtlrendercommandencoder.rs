@@ -1,7 +1,16 @@
 use std::ffi::c_void;
 use objr::bindings::*;
-use crate::{MTLRenderPipelineState, MTLPrimitiveType, MTLTexture,MTLSamplerState,MTLDepthStencilState,MTLCommandEncoder};
+use crate::{MTLRenderPipelineState, MTLPrimitiveType, MTLTexture,MTLSamplerState,MTLDepthStencilState,MTLCommandEncoder,MTLBuffer};
 use foundationr::NSUInteger;
+
+objc_enum! {
+    pub struct MTLRenderStages<NSUInteger>;
+    impl MTLRenderStage {
+            Vertex   = 1 << 0,
+    Fragment = 1 << 1,
+    Tile  = 1 << 2
+    }
+}
 
 objc_instance! {
     pub struct MTLRenderCommandEncoder;
@@ -14,6 +23,8 @@ objc_selector_group! {
         @selector("setFragmentTexture:atIndex:")
         @selector("setFragmentSamplerState:atIndex:")
         @selector("setVertexTexture:atIndex:")
+        @selector("setVertexBuffer:offset:atIndex:")
+        @selector("setFragmentBuffer:offset:atIndex:")
         @selector("setDepthStencilState:")
         @selector("setVertexBytes:length:atIndex:")
     }
@@ -34,6 +45,16 @@ impl MTLRenderCommandEncoder {
     pub fn setVertexTextureAtIndex(&mut self, texture: Option<&MTLTexture>, index: NSUInteger, pool: &ActiveAutoreleasePool) {
         unsafe {
             Self::perform_primitive(self, Sel::setVertexTexture_atIndex(), pool, (texture.as_ptr().assume_nonmut_perform(),index))
+        }
+    }
+    pub fn setVertexBufferOffsetAtIndex(&mut self, buffer: Option<&MTLBuffer>,offset: NSUInteger,  index: NSUInteger, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            Self::perform_primitive(self, Sel::setVertexBuffer_offset_atIndex(), pool, (buffer.as_ptr().assume_nonmut_perform(),offset,index))
+        }
+    }
+    pub fn setFragmentBufferOffsetAtIndex(&mut self, buffer: Option<&MTLBuffer>, offset: NSUInteger, index: NSUInteger, pool: &ActiveAutoreleasePool) {
+        unsafe {
+            Self::perform_primitive(self, Sel::setFragmentBuffer_offset_atIndex(), pool, (buffer.as_ptr().assume_nonmut_perform(),offset,index))
         }
     }
     ///# Safety
