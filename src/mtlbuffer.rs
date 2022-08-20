@@ -18,6 +18,13 @@ objc_selector_group! {
 //we wrap all contents accesses in `unsafe`
 unsafe impl Send for MTLBuffer {}
 unsafe impl Sync for MTLBuffer {}
+
+impl PartialEq for MTLBuffer {
+    fn eq(&self, other: &Self) -> bool {
+        (self as *const MTLBuffer) == (other as *const MTLBuffer)
+    }
+}
+impl Eq for MTLBuffer {}
 #[allow(non_snake_case)]
 impl MTLBuffer {
     ///
