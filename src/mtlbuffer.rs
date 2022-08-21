@@ -1,6 +1,6 @@
 use foundationr::{NSUInteger,NSRange};
 use objr::bindings::*;
-use crate::{MTLTextureDescriptor, MTLTexture};
+use crate::{MTLTextureDescriptor, MTLTexture,MTLResource};
 
 objc_instance! {
     pub struct MTLBuffer;
@@ -64,6 +64,22 @@ impl MTLBuffer {
         unsafe {
             Self::perform_primitive(self, Sel::addDebugMarker_range(), pool, (marker.assume_nonmut_perform(),range))
         }
+    }
+    pub const fn as_resource(&self) -> &MTLResource {
+        unsafe { &* (self as *const _ as *const MTLResource) }
+    }
+    pub fn as_resource_mut(&mut self) -> &mut MTLResource {
+        unsafe { &mut * (self as *mut _ as *mut MTLResource) }
+    }
+}
+impl<'a> From<&'a MTLBuffer> for &'a MTLResource {
+    fn from(t: &'a MTLBuffer) -> Self {
+        t.as_resource()
+    }
+}
+impl<'a> From<&'a mut MTLBuffer> for &'a mut MTLResource {
+    fn from(t: &'a mut MTLBuffer) -> Self {
+        t.as_resource_mut()
     }
 }
 
