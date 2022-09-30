@@ -5,7 +5,7 @@ use crate::mtllibrary::MTLLibrary;
 use crate::{MTLRenderPipelineDescriptor, MTLTexture, MTLResourceOptions, MTLPixelFormat, MTLRenderPipelineState, MTLSamplerDescriptor,MTLSamplerState};
 use std::future::Future;
 use blocksr::continuation::Continuation;
-use foundationr::{NSInteger, NSUInteger,NSData};
+use foundationr::{NSInteger, NSUInteger};
 use crate::mtlbuffer::MTLBuffer;
 use crate::mtldepthstencildescriptor::MTLDepthStencilDescriptor;
 use crate::MTLDepthStencilState;
@@ -106,7 +106,7 @@ impl MTLDevice {
         }
     }
 
-    pub fn newLibraryWithData<'a>(&self, data: &NSData, pool: &'a ActiveAutoreleasePool) -> Result<StrongMutCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
+    pub fn newLibraryWithData<'a>(&self, data: &dispatchr::data::Unmanaged, pool: &'a ActiveAutoreleasePool) -> Result<StrongMutCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
         unsafe {
             //assume_nonmut_perform: see comment above
             let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newLibraryWithData_error(), pool, (data.assume_nonmut_perform(),));

@@ -8,5 +8,6 @@ edition = "2021"
 [dependencies]
 objr = {git = "https://github.com/drewcrawford/objr"}
 #objr = {path ="../objr" }
-foundationr = {git = "https://github.com/drewcrawford/foundationr",features=["nsrange","nsdata"]}
+foundationr = {git = "https://github.com/drewcrawford/foundationr",features=["nsrange"]}
 blocksr = {git = "https://github.com/drewcrawford/blocksr",features=["continuation"]}
+dispatchr = {git = "https://github.com/drewcrawford/dispatchr",features=["bridge"] } # bridge dispatch_data to objr
