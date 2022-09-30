@@ -5,7 +5,7 @@ use crate::mtllibrary::MTLLibrary;
 use crate::{MTLRenderPipelineDescriptor, MTLTexture, MTLResourceOptions, MTLPixelFormat, MTLRenderPipelineState, MTLSamplerDescriptor,MTLSamplerState};
 use std::future::Future;
 use blocksr::continuation::Continuation;
-use foundationr::{NSInteger, NSUInteger};
+use foundationr::{NSInteger, NSUInteger,NSData};
 use crate::mtlbuffer::MTLBuffer;
 use crate::mtldepthstencildescriptor::MTLDepthStencilDescriptor;
 use crate::MTLDepthStencilState;
@@ -58,6 +58,7 @@ objc_selector_group! {
         @selector("newSamplerStateWithDescriptor:")
         @selector("newDepthStencilStateWithDescriptor:")
         @selector("supportsFamily:")
+        @selector("newLibraryWithData:error:")
     }
     impl MTLDeviceSelectors for Sel {}
 }
@@ -105,7 +106,15 @@ impl MTLDevice {
         }
     }
 
-    //todo: Implement options
+    pub fn newLibraryWithData<'a>(&self, data: &NSData, pool: &'a ActiveAutoreleasePool) -> Result<StrongMutCell<MTLLibrary>,AutoreleasedCell<'a, NSError>> {
+        unsafe {
+            //assume_nonmut_perform: see comment above
+            let ptr = Self::perform_result(self.assume_nonmut_perform(), Sel::newLibraryWithData_error(), pool, (data.assume_nonmut_perform(),));
+            ptr.map(|d| MTLLibrary::assume_nonnil(d).assume_retained().assume_mut())
+        }
+    }
+
+        //todo: Implement options
     pub fn newLibraryWithSource<'a>(&self, source: &NSString, _options: Option<()>, pool: &'a ActiveAutoreleasePool)  -> Result<StrongMutCell<MTLLibrary>, AutoreleasedCell<'a, NSError>>{
         unsafe {
             //assume_nonmut_perform: see comment above
