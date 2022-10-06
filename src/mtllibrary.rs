@@ -15,7 +15,7 @@ objc_selector_group! {
 }
 //surely it's send at least?
 unsafe impl Send for MTLLibrary {}
-once_escaping!(NewFunctionCompletionHandler(function: *const MTLFunction, error: *const NSError) -> ());
+once_escaping!(NewFunctionCompletionHandler(function: *mut MTLFunction, error: *const NSError) -> ());
 unsafe impl Arguable for &NewFunctionCompletionHandler {}
 #[allow(non_snake_case)]
 impl MTLLibrary {
@@ -26,14 +26,14 @@ impl MTLLibrary {
         }
     }
     pub fn newFunctionWithNameConstantValuesCompletionHandler<F>(&self,name: &NSString, constantValues: &MTLFunctionConstantValues, completionHandler: F, pool: &ActiveAutoreleasePool)
-    where F: FnOnce(Result<&MTLFunction,&NSError>) + Send + 'static {
+    where F: FnOnce(Result<&mut MTLFunction,&NSError>) + Send + 'static {
         let block = unsafe{ NewFunctionCompletionHandler::new(|function, error| {
            let result;
             if function.is_null() {
                result = Err(&*error)
            }
             else {
-                result = Ok(&*function)
+                result = Ok(&mut *function)
             }
             completionHandler(result)
         })};
@@ -43,10 +43,10 @@ impl MTLLibrary {
         }
     }
 
-    pub fn newFunctionAsync(&self, name: &NSString, constantValues: &MTLFunctionConstantValues, pool: &ActiveAutoreleasePool) -> impl Future<Output=Result<StrongCell<MTLFunction>,StrongCell<NSError>>> {
-        let (continuation, completer) = blocksr::continuation::Continuation::<(),ImpliedSyncUse<Result<StrongCell<MTLFunction>,StrongCell<NSError>>>>::new();
+    pub fn newFunctionAsync(&self, name: &NSString, constantValues: &MTLFunctionConstantValues, pool: &ActiveAutoreleasePool) -> impl Future<Output=Result<StrongMutCell<MTLFunction>,StrongCell<NSError>>> {
+        let (continuation, completer) = blocksr::continuation::Continuation::<(),ImpliedSyncUse<Result<StrongMutCell<MTLFunction>,StrongCell<NSError>>>>::new();
         self.newFunctionWithNameConstantValuesCompletionHandler(name, constantValues, |result| {
-            let result = result.map(|r| StrongCell::retaining(r)).map_err(|e| StrongCell::retaining(e));
+            let result = result.map(|r| StrongMutCell::retaining(r)).map_err(|e| StrongCell::retaining(e));
             //safe because API inference
             completer.complete(unsafe{ImpliedSyncUse::new(result)});
         }, pool);
