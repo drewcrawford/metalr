@@ -13,7 +13,8 @@ objc_selector_group! {
     }
     impl MTLLibrarySelectors for Sel{}
 }
-
+//surely it's send at least?
+unsafe impl Send for MTLLibrary {}
 once_escaping!(NewFunctionCompletionHandler(function: *const MTLFunction, error: *const NSError) -> ());
 unsafe impl Arguable for &NewFunctionCompletionHandler {}
 #[allow(non_snake_case)]
