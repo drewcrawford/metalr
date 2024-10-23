@@ -4,7 +4,6 @@ use core::ffi::c_void;
 use crate::mtllibrary::MTLLibrary;
 use crate::{MTLRenderPipelineDescriptor, MTLTexture, MTLResourceOptions, MTLPixelFormat, MTLRenderPipelineState, MTLSamplerDescriptor,MTLSamplerState};
 use std::future::Future;
-use blocksr::continuation::Continuation;
 use foundationr::{NSInteger, NSUInteger};
 use crate::mtlbuffer::MTLBuffer;
 use crate::mtldepthstencildescriptor::MTLDepthStencilDescriptor;
@@ -149,15 +148,15 @@ impl MTLDevice {
     }
 
     pub fn newRenderPipelineStateWithDescriptorAsync<'s, 'descriptor,'pool>(&'s self, descriptor: &'descriptor MTLRenderPipelineDescriptor, pool: &'pool ActiveAutoreleasePool) -> impl Future<Output=Result<StrongMutCell<MTLRenderPipelineState>, StrongCell<NSError>>> {
-        let (continuation, completion) = Continuation::<(),_>::new();
+        let (sender, receiver) = r#continue::continuation();
         //I'm not sure if renderpipelinestate is generally threadsafe, but this usage is public API so it should be fine.
         self.newRenderPipelineStateWithDescriptorCompletionHandler(descriptor, pool, move |result| {
             let result = result.map(|r| StrongMutCell::retaining(r)).map_err(|e| StrongCell::retaining(e));
             let result = unsafe{ImpliedSyncUse::new(result)};
-            completion.complete(result);
+            sender.send(result);
         });
         async {
-            unsafe{continuation.await.unwrap()} //end implied sync use
+            unsafe{receiver.await.unwrap()} //end implied sync use
         }
     }
     pub fn newBufferWithLengthOptions(&self, length: NSUInteger, options: MTLResourceOptions, pool: &ActiveAutoreleasePool) -> Option<StrongMutCell<MTLBuffer>> {

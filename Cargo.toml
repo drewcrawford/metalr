@@ -6,8 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-objr = {git = "https://github.com/drewcrawford/objr"}
+objr = "1"
 #objr = {path ="../objr" }
 foundationr = {git = "https://github.com/drewcrawford/foundationr",features=["nsrange"]}
-blocksr = {git = "https://github.com/drewcrawford/blocksr",features=["continuation"]}
+blocksr = {git = "https://github.com/drewcrawford/blocksr"}
 dispatchr = {git = "https://github.com/drewcrawford/dispatchr",features=["bridge"] } # bridge dispatch_data to objr
+continue = ">=0"

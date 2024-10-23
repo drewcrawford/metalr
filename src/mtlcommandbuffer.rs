@@ -1,5 +1,4 @@
 use std::future::Future;
-use blocksr::continuation::Continuation;
 use objr::bindings::*;
 use super::{MTLRenderPassDescriptor,MTLRenderCommandEncoder,MTLDrawable};
 use crate::mtlblitcommandencoder::MTLBlitCommandEncoder;
@@ -56,12 +55,12 @@ impl MTLCommandBuffer {
     3.  awaits the completion handler
     */
     pub fn commitWaitUntilCompletedAsync(&mut self, pool: &ActiveAutoreleasePool) -> impl Future<Output=()> {
-        let (continuation,completer) = Continuation::<(),_>::new();
+        let (sender,receiver) = r#continue::continuation();
         self.addCompletedHandler(|_| {
-            completer.complete(())
+            sender.send(())
         },pool);
         self.commit(pool);
-        continuation
+        receiver
     }
 
     pub fn waitUntilScheduled(&mut self, pool: &ActiveAutoreleasePool) {
